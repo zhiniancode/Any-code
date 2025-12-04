@@ -326,6 +326,26 @@ export interface CurrentProviderConfig {
 }
 
 /**
+ * API Key usage information
+ */
+export interface ApiKeyUsage {
+  /** Total balance in USD */
+  total_balance: number;
+  /** Used balance in USD */
+  used_balance: number;
+  /** Remaining balance in USD */
+  remaining_balance: number;
+  /** Whether the balance is unlimited */
+  is_unlimited: boolean;
+  /** Access expiration timestamp (0 means never expires) */
+  access_until: number;
+  /** Query start date */
+  query_start_date: string;
+  /** Query end date */
+  query_end_date: string;
+}
+
+/**
  * Codex provider configuration for OpenAI Codex API switching
  */
 export interface CodexProviderConfig {
@@ -1711,6 +1731,21 @@ export const api = {
       return await invoke<ProviderConfig>("get_provider_config", { id });
     } catch (error) {
       console.error("Failed to get provider config:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Queries API Key usage/balance from the provider
+   * @param baseUrl - The base URL of the provider API
+   * @param apiKey - The API key to query usage for
+   * @returns Promise resolving to API key usage information
+   */
+  async queryProviderUsage(baseUrl: string, apiKey: string): Promise<ApiKeyUsage> {
+    try {
+      return await invoke<ApiKeyUsage>("query_provider_usage", { baseUrl, apiKey });
+    } catch (error) {
+      console.error("Failed to query provider usage:", error);
       throw error;
     }
   },

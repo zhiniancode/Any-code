@@ -42,8 +42,8 @@ use commands::prompt_tracker::{
 };
 use commands::provider::{
     add_provider_config, clear_provider_config, delete_provider_config,
-    get_current_provider_config, get_provider_config, get_provider_presets, switch_provider_config,
-    test_provider_connection, update_provider_config,
+    get_current_provider_config, get_provider_config, get_provider_presets, query_provider_usage,
+    switch_provider_config, test_provider_connection, update_provider_config,
 };
 use commands::simple_git::check_and_init_git;
 use commands::storage::{
@@ -322,6 +322,7 @@ fn main() {
             update_provider_config,
             delete_provider_config,
             get_provider_config,
+            query_provider_usage,
             // Translation
             translate,
             translate_batch,

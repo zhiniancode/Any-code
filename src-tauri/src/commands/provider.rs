@@ -473,3 +473,136 @@ pub fn test_provider_connection(base_url: String) -> Result<String, String> {
     // 目前返回一个简单的成功消息
     Ok(format!("连接测试完成：{}", test_url))
 }
+
+/// API Key 用量查询结果
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ApiKeyUsage {
+    /// 令牌总额（美元）
+    pub total_balance: f64,
+    /// 已用额度（美元）
+    pub used_balance: f64,
+    /// 剩余额度（美元）
+    pub remaining_balance: f64,
+    /// 是否为无限额度
+    pub is_unlimited: bool,
+    /// 有效期（Unix时间戳，0表示永不过期）
+    pub access_until: i64,
+    /// 查询时间段起始日期
+    pub query_start_date: String,
+    /// 查询时间段结束日期
+    pub query_end_date: String,
+}
+
+/// 查询 API Key 用量
+/// 调用 New API 的 billing 接口获取余额和使用情况
+#[command]
+pub async fn query_provider_usage(base_url: String, api_key: String) -> Result<ApiKeyUsage, String> {
+    use reqwest::Client;
+
+    log::info!("开始查询 API Key 用量: {}", base_url);
+
+    // 规范化基础 URL
+    let normalized_base = normalize_base_url(&base_url);
+
+    let client = Client::builder()
+        .timeout(std::time::Duration::from_secs(30))
+        .build()
+        .map_err(|e| format!("创建HTTP客户端失败: {}", e))?;
+
+    // 1. 查询订阅信息
+    let subscription_url = format!("{}/v1/dashboard/billing/subscription", normalized_base);
+    log::info!("查询订阅信息: {}", subscription_url);
+
+    let subscription_response = client
+        .get(&subscription_url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .send()
+        .await
+        .map_err(|e| format!("请求订阅信息失败: {}", e))?;
+
+    if !subscription_response.status().is_success() {
+        let status = subscription_response.status();
+        let body = subscription_response.text().await.unwrap_or_default();
+        return Err(format!("订阅信息查询失败: {} - {}", status, body));
+    }
+
+    let subscription_data: Value = subscription_response
+        .json()
+        .await
+        .map_err(|e| format!("解析订阅信息失败: {}", e))?;
+
+    let total_balance = subscription_data
+        .get("hard_limit_usd")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
+
+    let access_until = subscription_data
+        .get("access_until")
+        .and_then(|v| v.as_i64())
+        .unwrap_or(0);
+
+    // 判断是否为无限额度 (100000000 表示无限)
+    let is_unlimited = total_balance >= 100000000.0;
+
+    // 2. 查询使用情况（最近100天）
+    let now = chrono::Utc::now();
+    let start = now - chrono::Duration::days(100);
+    let start_date = start.format("%Y-%m-%d").to_string();
+    let end_date = now.format("%Y-%m-%d").to_string();
+
+    let usage_url = format!(
+        "{}/v1/dashboard/billing/usage?start_date={}&end_date={}",
+        normalized_base, start_date, end_date
+    );
+    log::info!("查询使用情况: {}", usage_url);
+
+    let usage_response = client
+        .get(&usage_url)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .send()
+        .await
+        .map_err(|e| format!("请求使用情况失败: {}", e))?;
+
+    if !usage_response.status().is_success() {
+        let status = usage_response.status();
+        let body = usage_response.text().await.unwrap_or_default();
+        return Err(format!("使用情况查询失败: {} - {}", status, body));
+    }
+
+    let usage_data: Value = usage_response
+        .json()
+        .await
+        .map_err(|e| format!("解析使用情况失败: {}", e))?;
+
+    // total_usage 是以美分为单位，需要除以100转换为美元
+    let total_usage_cents = usage_data
+        .get("total_usage")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
+    let used_balance = total_usage_cents / 100.0;
+
+    // 计算剩余额度
+    let remaining_balance = if is_unlimited {
+        f64::INFINITY
+    } else {
+        total_balance - used_balance
+    };
+
+    log::info!(
+        "API Key 用量查询完成: 总额=${:.2}, 已用=${:.2}, 剩余=${:.2}, 无限={}",
+        total_balance,
+        used_balance,
+        if is_unlimited { 0.0 } else { remaining_balance },
+        is_unlimited
+    );
+
+    Ok(ApiKeyUsage {
+        total_balance,
+        used_balance,
+        remaining_balance: if is_unlimited { 0.0 } else { remaining_balance },
+        is_unlimited,
+        access_until,
+        query_start_date: start_date,
+        query_end_date: end_date,
+    })
+}
