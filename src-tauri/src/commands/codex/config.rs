@@ -477,6 +477,11 @@ pub async fn set_custom_codex_path(app: AppHandle, custom_path: String) -> Resul
     // Also store in app_settings for compatibility
     if let Ok(app_data_dir) = app.path().app_data_dir() {
         let db_path = app_data_dir.join("agents.db");
+        if let Some(parent) = db_path.parent() {
+            if let Err(e) = std::fs::create_dir_all(parent) {
+                log::warn!("[Codex] Failed to create app data directory: {}", e);
+            }
+        }
         if let Ok(conn) = rusqlite::Connection::open(&db_path) {
             let _ = conn.execute(
                 "CREATE TABLE IF NOT EXISTS app_settings (

@@ -2778,6 +2778,18 @@ export const api = {
   },
 
   /**
+   * Get current Codex CLI path（优先自定义，其次自动检测）
+   */
+  async getCodexPath(): Promise<string> {
+    try {
+      return await invoke<string>("get_codex_path");
+    } catch (error) {
+      console.error("Failed to get Codex path:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Sets custom Codex CLI path
    * @param path - Path to custom Codex CLI executable (null to clear)
    * @returns Promise resolving to success message

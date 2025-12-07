@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,43 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   const [codexPathError, setCodexPathError] = useState<string | null>(null);
   const [codexPathValid, setCodexPathValid] = useState<boolean | null>(null);
   const [validatingCodexPath, setValidatingCodexPath] = useState(false);
+
+  /**
+   * 初始化时加载当前 Codex 路径，并在 refresh 事件触发时同步
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCodexPath = async () => {
+      try {
+        const path = await api.getCodexPath();
+        if (cancelled) return;
+
+        if (path) {
+          setCustomCodexPath(path);
+          setCodexPathValid(true);
+          setCodexPathError(null);
+        } else {
+          setCodexPathValid(null);
+        }
+      } catch (error) {
+        if (cancelled) return;
+        console.warn("Failed to load Codex path:", error);
+      }
+    };
+
+    loadCodexPath();
+
+    const handleRefresh = () => {
+      loadCodexPath();
+    };
+
+    window.addEventListener('refresh-codex-status', handleRefresh);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('refresh-codex-status', handleRefresh);
+    };
+  }, []);
 
   /**
    * Handle setting custom Claude CLI path
