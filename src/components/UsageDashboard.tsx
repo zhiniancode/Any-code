@@ -345,14 +345,14 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ onBack }) => {
               className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              返回主页
+              {t('usageDashboard.backToHome')}
             </Button>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-heading-1">使用情况仪表板</h1>
+              <h1 className="text-heading-1">{t('usageDashboard.title')}</h1>
               <p className="mt-1 text-body-small text-muted-foreground">
-                跟踪您的 Claude Code 使用情况和费用
+                {t('usageDashboard.subtitle')}
               </p>
             </div>
             {/* Date Range Filter */}
@@ -453,7 +453,7 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ onBack }) => {
                   {hasLoadedTabs.has("models") && stats && (
                     <div style={{ display: activeTab === "models" ? "block" : "none" }}>
                       <Card className="p-6">
-                        <h3 className="text-sm font-semibold mb-4">按模型统计</h3>
+                        <h3 className="text-sm font-semibold mb-4">{t('usageDashboard.modelStats')}</h3>
                         <div className="space-y-4">
                           {stats.by_model.map((model) => (
                           <div key={model.model} className="space-y-2">
