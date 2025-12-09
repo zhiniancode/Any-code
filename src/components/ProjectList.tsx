@@ -281,48 +281,60 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                 }
               }}
               className={cn(
-                "w-full text-left rounded-lg bg-card border border-border/40 hover:border-primary/50 hover:bg-muted/40 hover:shadow-md transition-all duration-200 group cursor-pointer relative",
-                viewMode === "grid" ? "px-5 py-4" : "px-4 py-3 flex items-center gap-4"
+                "w-full text-left rounded-xl border transition-all duration-300 group cursor-pointer relative overflow-hidden",
+                "bg-card hover:bg-gradient-to-br hover:from-card hover:to-muted/30",
+                "border-border/40 hover:border-primary/30",
+                "shadow-sm hover:shadow-lg hover:shadow-primary/5",
+                viewMode === "grid" ? "p-5" : "px-4 py-3 flex items-center gap-4"
               )}
               aria-label={`项目 ${projectName}，包含 ${sessionCount} 个会话，创建于 ${formatAbsoluteDateTime(project.created_at)}`}
             >
               {/* 主要信息区：项目图标 + 项目名称 */}
-              <div className={cn("flex items-start gap-3", viewMode === "grid" ? "mb-2" : "flex-1 items-center mb-0")}>
-                <div className="p-2 rounded-md bg-primary/10 text-primary shrink-0">
-                  <FolderOpen className="h-5 w-5" aria-hidden="true" />
+              <div className={cn("flex items-start gap-4", viewMode === "grid" ? "mb-3" : "flex-1 items-center mb-0")}>
+                <div className={cn(
+                  "flex items-center justify-center rounded-xl transition-colors duration-300",
+                  "bg-gradient-to-br from-primary/10 to-primary/5 text-primary group-hover:from-primary/20 group-hover:to-primary/10",
+                  viewMode === "grid" ? "w-12 h-12" : "w-10 h-10 shrink-0"
+                )}>
+                  <FolderOpen className={cn("transition-transform duration-300 group-hover:scale-110", viewMode === "grid" ? "h-6 w-6" : "h-5 w-5")} aria-hidden="true" />
                 </div>
-                <div className={cn("min-w-0", viewMode === "grid" ? "flex-1 pr-20" : "flex-1")}>
-                  <h3 className="font-semibold text-base truncate text-foreground group-hover:text-primary transition-colors">
+                
+                <div className={cn("min-w-0 flex flex-col justify-center", viewMode === "grid" ? "flex-1 pr-16" : "flex-1")}>
+                  <h3 className="font-semibold text-base truncate text-foreground group-hover:text-primary transition-colors tracking-tight">
                     {projectName}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {viewMode === "grid" ? formatAbsoluteDateTime(project.created_at) : project.path}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className={cn(
+                      "text-xs text-muted-foreground/80 truncate font-mono bg-muted/50 px-1.5 py-0.5 rounded",
+                      viewMode === "grid" ? "max-w-full" : "max-w-[200px]"
+                    )}>
+                      {viewMode === "grid" ? project.path : project.path}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* 路径信息 (仅网格视图) */}
+              {/* 底部信息 (仅网格视图) */}
               {viewMode === "grid" && (
-                <p
-                  className="text-xs text-muted-foreground truncate font-mono"
-                  aria-label={`路径: ${project.path}`}
-                  title={project.path}
-                >
-                  {project.path}
-                </p>
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
+                   <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                     <span className="w-1.5 h-1.5 rounded-full bg-green-500/50"></span>
+                     {formatAbsoluteDateTime(project.created_at)}
+                   </div>
+                </div>
               )}
 
               {/* 列表视图的额外信息 */}
               {viewMode === "list" && (
-                <div className="text-xs text-muted-foreground hidden md:block w-32 text-right">
-                  {formatAbsoluteDateTime(project.created_at)}
+                <div className="text-xs text-muted-foreground hidden md:flex items-center gap-2 w-40 justify-end">
+                   {formatAbsoluteDateTime(project.created_at)}
                 </div>
               )}
 
               {/* 右上角：会话数徽章 + 操作菜单 */}
               <div className={cn(
                 "flex items-center gap-2",
-                viewMode === "grid" ? "absolute top-4 right-4" : ""
+                viewMode === "grid" ? "absolute top-5 right-4" : ""
               )}>
                 {/* 会话数徽章 with Tooltip */}
                 {sessionCount > 0 && (
@@ -330,33 +342,36 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div
-                          className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-full cursor-default hover:bg-primary/20 transition-colors"
+                          className={cn(
+                            "flex items-center gap-1.5 px-2.5 py-1 rounded-full cursor-default transition-all duration-300 border",
+                            "bg-primary/5 text-primary border-primary/10 group-hover:bg-primary/10 group-hover:border-primary/20"
+                          )}
                           aria-label={`${sessionCount} 个会话`}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-                          <span className="text-sm font-medium">{sessionCount}</span>
+                          <span className="text-sm font-semibold">{sessionCount}</span>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side="left" className="p-0">
-                        <div className="px-3 py-2 space-y-1.5 min-w-[140px]">
-                          <p className="text-xs font-medium text-foreground border-b border-border pb-1.5 mb-1.5">会话明细</p>
+                      <TooltipContent side="left" className="p-0 border-primary/20 shadow-xl">
+                        <div className="px-3 py-2 space-y-2 min-w-[150px]">
+                          <p className="text-xs font-semibold text-foreground border-b border-border/50 pb-1.5">会话统计</p>
                           {sessionBreakdown.claude > 0 && (
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Claude Code</span>
-                              <span className="font-medium">{sessionBreakdown.claude}</span>
+                            <div className="flex items-center justify-between text-xs group/item">
+                              <span className="text-muted-foreground group-hover/item:text-foreground transition-colors">Claude Code</span>
+                              <span className="font-mono bg-muted px-1.5 rounded text-[10px]">{sessionBreakdown.claude}</span>
                             </div>
                           )}
                           {sessionBreakdown.codex > 0 && (
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Codex</span>
-                              <span className="font-medium">{sessionBreakdown.codex}</span>
+                            <div className="flex items-center justify-between text-xs group/item">
+                              <span className="text-muted-foreground group-hover/item:text-foreground transition-colors">Codex</span>
+                              <span className="font-mono bg-muted px-1.5 rounded text-[10px]">{sessionBreakdown.codex}</span>
                             </div>
                           )}
                           {sessionBreakdown.gemini > 0 && (
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Gemini</span>
-                              <span className="font-medium">{sessionBreakdown.gemini}</span>
+                            <div className="flex items-center justify-between text-xs group/item">
+                              <span className="text-muted-foreground group-hover/item:text-foreground transition-colors">Gemini</span>
+                              <span className="font-mono bg-muted px-1.5 rounded text-[10px]">{sessionBreakdown.gemini}</span>
                             </div>
                           )}
                         </div>
@@ -368,8 +383,8 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                 {/* 操作菜单 */}
                 {(onProjectSettings || onProjectDelete) && (
                   <div className={cn(
-                    "transition-opacity",
-                    viewMode === "grid" ? "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100" : "opacity-100"
+                    "transition-all duration-200",
+                    viewMode === "grid" ? "opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-focus-within:opacity-100 group-focus-within:translate-x-0" : "opacity-100"
                   )}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
