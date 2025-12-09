@@ -239,7 +239,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
             size="icon-sm"
             onClick={() => setViewMode("grid")}
             className="h-7 w-7"
-            title="网格视图"
+            title={t('projectList.gridView')}
           >
             <LayoutGrid className="h-4 w-4" />
           </Button>
@@ -248,7 +248,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
             size="icon-sm"
             onClick={() => setViewMode("list")}
             className="h-7 w-7"
-            title="列表视图"
+            title={t('projectList.listView')}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -263,7 +263,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
             : "grid-cols-1"
         )}
         role="list"
-        aria-label="项目列表"
+        aria-label={t('projectList.projectListLabel')}
       >
         {currentProjects.map((project) => {
           const projectName = getProjectName(project.path);
@@ -348,7 +348,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                             "flex items-center gap-1.5 px-2.5 py-1 rounded-full cursor-default transition-all duration-300 border",
                             "bg-primary/5 text-primary border-primary/10 group-hover:bg-primary/10 group-hover:border-primary/20"
                           )}
-                          aria-label={`${sessionCount} 个会话`}
+                          aria-label={t('projectList.sessionCountAria', { count: sessionCount })}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <FileText className="h-3.5 w-3.5" aria-hidden="true" />
@@ -357,7 +357,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                       </TooltipTrigger>
                       <TooltipContent side="left" className="p-0 border-primary/20 shadow-xl">
                         <div className="px-3 py-2 space-y-2 min-w-[150px]">
-                          <p className="text-xs font-semibold text-foreground border-b border-border/50 pb-1.5">会话统计</p>
+                          <p className="text-xs font-semibold text-foreground border-b border-border/50 pb-1.5">{t('projectList.sessionStats')}</p>
                           {sessionBreakdown.claude > 0 && (
                             <div className="flex items-center justify-between text-xs group/item">
                               <span className="text-muted-foreground group-hover/item:text-foreground transition-colors">Claude Code</span>
@@ -408,7 +408,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                             }}
                           >
                             <Settings className="h-4 w-4 mr-2" aria-hidden="true" />
-                            Hooks 配置
+                            {t('projectList.hooksConfig')}
                           </DropdownMenuItem>
                         )}
                         {onProjectSettings && onProjectDelete && (
@@ -423,7 +423,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
-                            删除项目
+                            {t('projectList.deleteProject')}
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
@@ -451,11 +451,11 @@ export const ProjectList: React.FC<ProjectListProps> = ({
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="active" className="flex items-center gap-2">
             <FolderOpen className="h-4 w-4" />
-            活跃项目
+            {t('projectList.activeProjects')}
           </TabsTrigger>
           <TabsTrigger value="deleted" className="flex items-center gap-2">
             <Archive className="h-4 w-4" />
-            已删除项目
+            {t('projectList.deletedProjects')}
           </TabsTrigger>
         </TabsList>
         
