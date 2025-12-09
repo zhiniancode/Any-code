@@ -30,7 +30,59 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       setLoading(true);
       setError(null);
       const list = await api.listProjects();
-      setProjects(list);
+      
+      // 1. 获取 Codex 会话列表（全局获取，开销小）
+      let codexSessions: any[] = [];
+      try {
+        codexSessions = await api.listCodexSessions();
+      } catch (e) {
+        console.warn("Failed to load codex sessions for sorting:", e);
+      }
+
+      // 2. 计算每个项目的"最后活跃时间"
+      // 默认使用创建时间，如果发现更有更新的 Codex 会话，则更新
+      const projectLastActive = new Map<string, number>();
+      
+      // 辅助函数：标准化路径（去除末尾斜杠，转小写，统一斜杠）
+      const normalize = (p: string) => p ? p.replace(/\\/g, '/').replace(/\/$/, '').toLowerCase() : '';
+
+      // 初始化：使用项目创建时间
+      list.forEach(p => {
+        const normPath = normalize(p.path);
+        projectLastActive.set(normPath, p.created_at);
+      });
+
+      // 更新：检查 Codex 会话
+      codexSessions.forEach(session => {
+        if (!session.projectPath) return;
+        const normPath = normalize(session.projectPath);
+        
+        // 获取会话的最新时间（优先使用最后消息时间，否则使用创建时间）
+        // 注意：Codex 会话的时间戳可能是 ISO 字符串或 Unix 时间戳，需要统一
+        let sessionTime = 0;
+        
+        if (session.lastMessageTimestamp) {
+          sessionTime = new Date(session.lastMessageTimestamp).getTime() / 1000;
+        } else if (session.createdAt) {
+          sessionTime = typeof session.createdAt === 'string' 
+            ? new Date(session.createdAt).getTime() / 1000 
+            : session.createdAt;
+        }
+
+        const current = projectLastActive.get(normPath) || 0;
+        if (sessionTime > current) {
+          projectLastActive.set(normPath, sessionTime);
+        }
+      });
+
+      // 3. 排序：按最后活跃时间降序（最新的在前）
+      const sortedList = list.sort((a, b) => {
+        const timeA = projectLastActive.get(normalize(a.path)) || a.created_at;
+        const timeB = projectLastActive.get(normalize(b.path)) || b.created_at;
+        return timeB - timeA;
+      });
+
+      setProjects(sortedList);
     } catch (err) {
       console.error("Failed to load projects:", err);
       setError(t('common.loadingProjects'));
