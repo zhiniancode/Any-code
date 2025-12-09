@@ -1,5 +1,6 @@
 import React from "react";
 import { Brain } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,8 @@ export const ThinkingModeToggle: React.FC<ThinkingModeToggleProps> = ({
   onToggle,
   disabled = false
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <TooltipProvider>
       <Tooltip>
@@ -40,20 +43,20 @@ export const ThinkingModeToggle: React.FC<ThinkingModeToggleProps> = ({
               isEnabled ? "animate-pulse text-white" : "text-muted-foreground"
             )} />
             <span className="text-sm font-medium">
-              {isEnabled ? "思考: 开" : "思考: 关"}
+              {isEnabled ? t('promptInput.thinkingOn') : t('promptInput.thinkingOff')}
             </span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>
           <div className="text-center">
             <p className="font-medium">
-              {isEnabled ? "扩展思考已启用" : "扩展思考已关闭"}
+              {isEnabled ? t('promptInput.thinkingEnabled') : t('promptInput.thinkingDisabled')}
             </p>
             <p className="text-xs text-muted-foreground">
-              {isEnabled ? "Claude 将进行深度思考 (10K tokens)" : "正常响应速度"}
+              {isEnabled ? t('promptInput.deepThinkingTokens') : t('promptInput.normalSpeed')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              快捷键: <kbd className="px-1 py-0.5 bg-muted rounded">Tab</kbd>
+              {t('common.back')}: <kbd className="px-1 py-0.5 bg-muted rounded">Tab</kbd>
             </p>
           </div>
         </TooltipContent>

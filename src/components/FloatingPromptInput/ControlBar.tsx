@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Popover } from "@/components/ui/popover";
@@ -79,6 +80,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   onCancel,
   onSend
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {/* Execution Engine Selector */}
@@ -134,14 +137,14 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             }
             content={
               <div className="space-y-2">
-                <div className="font-medium text-sm border-b pb-1">会话统计</div>
+                <div className="font-medium text-sm border-b pb-1">{t('promptInput.sessionStats')}</div>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between gap-4">
-                    <span className="text-muted-foreground">总成本:</span>
+                    <span className="text-muted-foreground">{t('promptInput.totalCost')}:</span>
                     <span className="font-mono font-medium">{sessionCost}</span>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <span className="text-muted-foreground">总 Tokens:</span>
+                    <span className="text-muted-foreground">{t('promptInput.totalTokens')}:</span>
                     <span className="font-mono">{sessionStats.totalTokens.toLocaleString()}</span>
                   </div>
                   {/* ... other stats ... */}
@@ -149,7 +152,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                     <>
                       <div className="border-t pt-1 mt-1"></div>
                       <div className="flex justify-between gap-4">
-                        <span className="text-muted-foreground">会话时长:</span>
+                        <span className="text-muted-foreground">{t('promptInput.sessionDuration')}:</span>
                         <span className="font-mono">{formatDuration(sessionStats.durationSeconds)}</span>
                       </div>
                     </>
@@ -174,7 +177,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           className="flex items-center gap-1.5 px-2 py-1 bg-blue-50/50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50 rounded-md text-xs text-blue-600 dark:text-blue-400 h-8"
         >
           <div className="rotating-symbol text-blue-600 dark:text-blue-400" style={{ width: '12px', height: '12px' }} />
-          <span>处理中</span>
+          <span>{t('promptInput.processing')}</span>
         </motion.div>
       )}
 
@@ -199,7 +202,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             className="gap-2 h-8 border-border/50 bg-background/50 hover:bg-accent/50"
           >
             <Wand2 className="h-3.5 w-3.5" />
-            <span className="text-xs">{isEnhancing ? "优化中..." : "优化"}</span>
+            <span className="text-xs">{isEnhancing ? t('promptInput.enhancing') : t('promptInput.enhance')}</span>
             <ChevronDown className="h-3 w-3 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
@@ -213,10 +216,10 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                     <Code2 className={`h-4 w-4 ${enableProjectContext ? 'text-primary' : 'text-muted-foreground'}`} />
                     <div>
                       <div className={`text-sm font-medium ${enableProjectContext ? 'text-primary' : ''}`}>
-                        启用项目上下文
+                        {t('promptInput.enableProjectContext')}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        使用 acemcp 搜索相关代码
+                        {t('promptInput.useAcemcpSearch')}
                       </p>
                     </div>
                   </div>
@@ -237,10 +240,10 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                 <Zap className={`h-4 w-4 ${enableDualAPI ? 'text-primary' : 'text-muted-foreground'}`} />
                 <div>
                   <div className={`text-sm font-medium ${enableDualAPI ? 'text-primary' : ''}`}>
-                    智能上下文提取
+                    {t('promptInput.smartContextExtraction')}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    AI 筛选相关消息（+40% 准确性）
+                    {t('promptInput.aiFilterMessages')}
                   </p>
                 </div>
               </div>

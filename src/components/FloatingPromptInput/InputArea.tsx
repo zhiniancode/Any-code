@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Maximize2 } from "lucide-react";
@@ -48,6 +49,8 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
   onCompositionStart,
   onCompositionEnd,
 }, ref) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="relative">
       <Textarea
@@ -59,7 +62,7 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
         // 🔧 Mac 输入法兼容：监听 composition 事件
         onCompositionStart={onCompositionStart}
         onCompositionEnd={onCompositionEnd}
-        placeholder={dragActive ? "拖放图片到这里..." : "向 Claude 提问..."}
+        placeholder={dragActive ? t('promptInput.placeholderDragActive') : t('promptInput.placeholder')}
         disabled={disabled}
         className={cn(
           "min-h-[56px] max-h-[300px] resize-none pr-10 overflow-y-auto",
@@ -80,7 +83,7 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
         onClick={onExpand}
         disabled={disabled}
         className="absolute right-1 bottom-1 h-8 w-8 text-muted-foreground hover:text-foreground"
-        aria-label="展开输入框"
+        aria-label={t('promptInput.expandInput')}
       >
         <Maximize2 className="h-4 w-4" aria-hidden="true" />
       </Button>

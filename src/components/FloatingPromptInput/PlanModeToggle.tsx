@@ -1,5 +1,6 @@
 import React from "react";
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,8 @@ export const PlanModeToggle: React.FC<PlanModeToggleProps> = ({
   onToggle,
   disabled = false
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <TooltipProvider>
       <Tooltip>
@@ -42,12 +45,12 @@ export const PlanModeToggle: React.FC<PlanModeToggleProps> = ({
         </TooltipTrigger>
         <TooltipContent>
           <p className="font-medium">
-            {isPlanMode ? "Plan Mode (Active)" : "Plan Mode"}
+            {isPlanMode ? t('promptInput.planModeActive') : t('promptInput.planMode')}
           </p>
           <p className="text-xs text-muted-foreground max-w-[200px]">
             {isPlanMode 
-              ? "Plan Mode: 可以分析、搜索、规划，但不能修改文件或执行命令"
-              : "启用 Plan Mode - 只读研究和规划模式（快捷键: Shift+Tab）"
+              ? t('promptInput.planModeDesc')
+              : t('promptInput.enablePlanMode')
             }
           </p>
         </TooltipContent>

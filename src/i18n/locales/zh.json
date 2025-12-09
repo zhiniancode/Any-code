@@ -640,7 +640,27 @@
     "newChar3": "息",
     "scrollToTop": "滚动到顶部",
     "scrollToBottom": "滚动到底部",
-    "startExecutingPlan": "请开始执行上述计划。"
+    "startExecutingPlan": "请开始执行上述计划。",
+    "queuedPrompts": "队列中的提示词 ({count})",
+    "fileSaved": "文件已保存",
+    "saveFailed": "保存失败",
+    "export": "导出",
+    "copyToClipboard": "复制到剪贴板",
+    "saveToFile": "保存到文件",
+    "copyAsJsonl": "复制为 JSONL",
+    "rawMessageData": "原始消息数据",
+    "copyAsJson": "复制为 JSON",
+    "structuredData": "结构化数据",
+    "copyAsMarkdown": "复制为 Markdown",
+    "readableFormat": "可读格式",
+    "saveAsJson": "保存为 JSON",
+    "fullSessionData": "完整会话数据",
+    "saveAsJsonl": "保存为 JSONL",
+    "streamDataFormat": "流式数据格式",
+    "saveAsMarkdown": "保存为 Markdown",
+    "humanReadableDoc": "人类可读文档",
+    "copiedAs": "已复制为 {format}",
+    "copyFailed": "复制失败"
   },
   "tabs": {
     "back": "返回",
@@ -882,5 +902,193 @@
     "doubleClickSkip": "双击跳过打字效果"
   },
   "myAnswers": "我的回答：",
-  "question": "问题"
+  "question": "问题",
+  "geminiEditor": {
+    "title": "Gemini GEMINI.md",
+    "subtitle": "编辑 Gemini 系统提示词配置",
+    "loadFailed": "无法加载 GEMINI.md 文件: {error}",
+    "saveSuccess": "GEMINI.md 保存成功",
+    "saveFailed": "保存失败: {error}",
+    "saveFailedToast": "保存 GEMINI.md 失败",
+    "unsavedChangesConfirm": "您有未保存的更改。确定要离开吗？",
+    "saving": "保存中...",
+    "save": "保存",
+    "loading": "加载 GEMINI.md..."
+  },
+  "promptInput": {
+    "placeholder": "向 Claude 提问...",
+    "placeholderDragActive": "拖放图片到这里...",
+    "expandInput": "展开输入框",
+    "enhancing": "优化中...",
+    "enhance": "优化",
+    "enhancePrompt": "优化提示词",
+    "describeTask": "请描述您想要完成的任务",
+    "enterPromptPlaceholder": "输入您的提示词...",
+    "clickToZoom": "点击放大",
+    "remove": "删除",
+    "doubleClickSkipTyping": "双击跳过打字效果",
+    "thinkingModeOff": "思考模式: 关闭",
+    "thinkingModeOn": "思考模式: 开启",
+    "normalSpeed": "正常响应速度",
+    "deepThinking": "启用深度思考 (32K tokens)",
+    "thinkingOn": "思考: 开",
+    "thinkingOff": "思考: 关",
+    "thinkingEnabled": "扩展思考已启用",
+    "thinkingDisabled": "扩展思考已关闭",
+    "deepThinkingTokens": "Claude 将进行深度思考 (10K tokens)",
+    "planModeActive": "Plan Mode (活跃)",
+    "planMode": "Plan Mode",
+    "planModeDesc": "Plan Mode: 可以分析、搜索、规划，但不能修改文件或执行命令",
+    "enablePlanMode": "启用 Plan Mode - 只读研究和规划模式（快捷键: Shift+Tab）",
+    "enterPlanMode": "进入 Plan 模式",
+    "planApproved": "计划已批准执行",
+    "planRejected": "计划已拒绝，继续规划",
+    "exitPlanMode": "退出 Plan 模式",
+    "enterPlanModeDesc": "AI 进入规划模式，将分析任务并制定实施方案，不会修改文件或执行命令",
+    "planApprovedDesc": "此计划已通过审批，Claude 正在执行中",
+    "planRejectedDesc": "此计划已被拒绝，Claude 正在重新规划",
+    "exitPlanModeDesc": "AI 退出规划模式，准备开始执行已制定的方案",
+    "sessionStats": "会话统计",
+    "totalCost": "总成本",
+    "totalTokens": "总 Tokens",
+    "sessionDuration": "会话时长",
+    "processing": "处理中",
+    "enableProjectContext": "启用项目上下文",
+    "useAcemcpSearch": "使用 acemcp 搜索相关代码",
+    "smartContextExtraction": "智能上下文提取",
+    "aiFilterMessages": "AI 筛选相关消息（+40% 准确性）"
+  },
+  "widget": {
+    "collapseResult": "收起结果",
+    "expandAll": "展开全部",
+    "searchFailed": "搜索失败",
+    "noMatches": "No matches found",
+    "commandFailed": "命令执行失败",
+    "commandCompleted": "命令执行完成，无输出",
+    "getOutputFailed": "获取输出失败",
+    "emptyOutput": "输出为空",
+    "viewFullContent": "查看完整内容",
+    "openWithDefault": "用系统默认应用打开",
+    "closeFull": "关闭 (ESC)",
+    "userAnswered": "用户已回答问题",
+    "claudeAsking": "Claude 正在询问用户",
+    "noPlanContent": "（无计划内容）"
+  },
+  "usageDashboard": {
+    "today": "今日",
+    "all": "全部",
+    "last7Days": "最近7天",
+    "last30Days": "最近30天"
+  },
+  "storage": {
+    "updateRowFailed": "更新行失败",
+    "deleteRowFailed": "删除行失败",
+    "insertRowFailed": "插入行失败"
+  },
+  "sessionList": {
+    "deleting": "删除中...",
+    "deleteSelected": "删除选中 ({count})",
+    "cancelSelection": "取消选择",
+    "batchSelection": "批量选择",
+    "sessionListLabel": "会话列表",
+    "confirmDelete": "确认删除"
+  },
+  "sessionHeader": {
+    "enterPathOrBrowse": "输入项目路径或点击浏览按钮选择"
+  },
+  "promptNavigator": {
+    "searchPrompts": "搜索提示词... (Ctrl+F)"
+  },
+  "projectList": {
+    "gridView": "网格视图",
+    "listView": "列表视图",
+    "projectListLabel": "项目列表",
+    "confirmDelete": "确认删除"
+  },
+  "mcpImport": {
+    "invalidJson": "无效的 JSON 格式。请检查输入格式。",
+    "enterServerName": "请输入此服务器的名称：",
+    "unrecognizedFormat": "无法识别的 JSON 格式。需要 MCP 服务器配置格式。",
+    "importTextFailed": "导入文本失败",
+    "importJsonFailed": "导入 JSON 文件失败",
+    "exportSuccess": "✅ MCP服务器配置导出成功！文件已保存到下载文件夹。",
+    "scopeLocal": "本地 (仅此项目)",
+    "scopeProject": "项目 (通过 .mcp.json 共享)",
+    "scopeUser": "用户 (所有项目)",
+    "pasteConfig": "粘贴 MCP 服务器配置 JSON..."
+  },
+  "viewRouter": {
+    "projectDeleted": "项目 \"{name}\" 已删除成功"
+  },
+  "sidebar": {
+    "about": "关于",
+    "collapseSidebar": "收起侧边栏",
+    "expandSidebar": "展开侧边栏"
+  },
+  "hooksEditor": {
+    "commonPatterns": "常用模式",
+    "enterCommand": "输入命令行命令...",
+    "saving": "保存中...",
+    "save": "保存"
+  },
+  "fileEditor": {
+    "back": "返回",
+    "saving": "保存中...",
+    "save": "保存",
+    "unsavedChanges": "您有未保存的更改。确定要离开吗？"
+  },
+  "filePicker": {
+    "clickToEnterDoubleToSelect": "单击进入 • 双击选中",
+    "doubleClickToSelect": "双击选中",
+    "directoryClickDoubleSelect": "目录:单击进入 双击选中 • 文件:双击选中",
+    "keyboardNav": "↑↓ 导航 • Enter 选择 • → 进入目录 • ← 返回 • Esc 关闭"
+  },
+  "executionEngine": {
+    "enterCustomModel": "输入自定义模型名称"
+  },
+  "floatingInput": {
+    "clickToZoom": "点击放大",
+    "remove": "删除",
+    "enterPrompt": "输入您的提示词...",
+    "enhancing": "优化中...",
+    "enhancePrompt": "优化提示词"
+  },
+  "deletedProjects": {
+    "restoreProject": "恢复项目",
+    "permanentlyDelete": "永久删除"
+  },
+  "updateBadge": {
+    "newVersionAvailable": "有新版本可用",
+    "closeUpdateReminder": "关闭更新提醒"
+  },
+  "dialogs": {
+    "noPlan": "（无计划内容）",
+    "openDownloadFailed": "打开下载页面失败",
+    "cannotOpenDownloadPage": "无法打开下载页面，请手动访问 GitHub Releases",
+    "autoUpdateUnavailable": "自动更新不可用，请使用手动下载",
+    "downloadInstallFailed": "下载安装失败，请尝试手动下载",
+    "restartFailed": "重启失败，请手动重启应用",
+    "loading": "加载中...",
+    "unknown": "未知",
+    "openProjectPageFailed": "打开项目地址失败"
+  },
+  "codexEditor": {
+    "codexDirNotFound": "未找到 Codex 目录。请确保已安装 Codex CLI。",
+    "cannotLoadAgents": "无法加载 AGENTS.md 文件",
+    "agentsSaveSuccess": "AGENTS.md 保存成功",
+    "agentsSaveFailed": "保存 AGENTS.md 失败",
+    "unsavedChanges": "您有未保存的更改。确定要离开吗？",
+    "back": "返回",
+    "saving": "保存中...",
+    "save": "保存"
+  },
+  "claudeSession": {
+    "userCancelled": "用户已取消会话",
+    "loadingHistory": "加载会话历史记录...",
+    "initializingClaude": "初始化 Claude Code...",
+    "promptNav": "提示词导航 - 快速跳转到任意提示词",
+    "newMessage": "新消息 - 点击滚动到底部",
+    "scrollToTop": "滚动到顶部",
+    "scrollToBottom": "滚动到底部"
+  }
 }

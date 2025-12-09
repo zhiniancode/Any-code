@@ -640,7 +640,27 @@
     "newChar3": "W",
     "scrollToTop": "Scroll to top",
     "scrollToBottom": "Scroll to bottom",
-    "startExecutingPlan": "Please start executing the above plan."
+    "startExecutingPlan": "Please start executing the above plan.",
+    "queuedPrompts": "Queued Prompts ({count})",
+    "fileSaved": "File saved",
+    "saveFailed": "Save failed",
+    "export": "Export",
+    "copyToClipboard": "Copy to clipboard",
+    "saveToFile": "Save to file",
+    "copyAsJsonl": "Copy as JSONL",
+    "rawMessageData": "Raw message data",
+    "copyAsJson": "Copy as JSON",
+    "structuredData": "Structured data",
+    "copyAsMarkdown": "Copy as Markdown",
+    "readableFormat": "Readable format",
+    "saveAsJson": "Save as JSON",
+    "fullSessionData": "Full session data",
+    "saveAsJsonl": "Save as JSONL",
+    "streamDataFormat": "Stream data format",
+    "saveAsMarkdown": "Save as Markdown",
+    "humanReadableDoc": "Human-readable document",
+    "copiedAs": "Copied as {format}",
+    "copyFailed": "Copy failed"
   },
   "tabs": {
     "back": "Back",
@@ -882,5 +902,193 @@
     "doubleClickSkip": "Double-click to skip typing effect"
   },
   "myAnswers": "My Answers:",
-  "question": "Question"
+  "question": "Question",
+  "geminiEditor": {
+    "title": "Gemini GEMINI.md",
+    "subtitle": "Edit Gemini system prompt configuration",
+    "loadFailed": "Failed to load GEMINI.md file: {error}",
+    "saveSuccess": "GEMINI.md saved successfully",
+    "saveFailed": "Save failed: {error}",
+    "saveFailedToast": "Failed to save GEMINI.md",
+    "unsavedChangesConfirm": "You have unsaved changes. Are you sure you want to leave?",
+    "saving": "Saving...",
+    "save": "Save",
+    "loading": "Loading GEMINI.md..."
+  },
+  "promptInput": {
+    "placeholder": "Ask Claude...",
+    "placeholderDragActive": "Drop images here...",
+    "expandInput": "Expand input",
+    "enhancing": "Enhancing...",
+    "enhance": "Enhance",
+    "enhancePrompt": "Enhance Prompt",
+    "describeTask": "Please describe the task you want to complete",
+    "enterPromptPlaceholder": "Enter your prompt...",
+    "clickToZoom": "Click to zoom",
+    "remove": "Remove",
+    "doubleClickSkipTyping": "Double-click to skip typing effect",
+    "thinkingModeOff": "Thinking Mode: Off",
+    "thinkingModeOn": "Thinking: Mode On",
+    "normalSpeed": "Normal response speed",
+    "deepThinking": "Enable deep thinking (32K tokens)",
+    "thinkingOn": "Thinking: On",
+    "thinkingOff": "Thinking: Off",
+    "thinkingEnabled": "Extended thinking enabled",
+    "thinkingDisabled": "Extended thinking disabled",
+    "deepThinkingTokens": "Claude will perform deep thinking (10K tokens)",
+    "planModeActive": "Plan Mode (Active)",
+    "planMode": "Plan Mode",
+    "planModeDesc": "Plan Mode: Can analyze, search, plan, but cannot modify files or execute commands",
+    "enablePlanMode": "Enable Plan Mode - Read-only research and planning mode (Shortcut: Shift+Tab)",
+    "enterPlanMode": "Enter Plan Mode",
+    "planApproved": "Plan approved for execution",
+    "planRejected": "Plan rejected, continue planning",
+    "exitPlanMode": "Exit Plan Mode",
+    "enterPlanModeDesc": "AI enters planning mode, will analyze tasks and formulate implementation plans without modifying files or executing commands",
+    "planApprovedDesc": "This plan has been approved, Claude is executing",
+    "planRejectedDesc": "This plan has been rejected, Claude is re-planning",
+    "exitPlanModeDesc": "AI exits planning mode, ready to start executing the formulated plan",
+    "sessionStats": "Session Statistics",
+    "totalCost": "Total Cost",
+    "totalTokens": "Total Tokens",
+    "sessionDuration": "Session Duration",
+    "processing": "Processing",
+    "enableProjectContext": "Enable Project Context",
+    "useAcemcpSearch": "Use acemcp to search related code",
+    "smartContextExtraction": "Smart Context Extraction",
+    "aiFilterMessages": "AI filters relevant messages (+40% accuracy)"
+  },
+  "widget": {
+    "collapseResult": "Collapse result",
+    "expandAll": "Expand all",
+    "searchFailed": "Search failed",
+    "noMatches": "No matches found",
+    "commandFailed": "Command execution failed",
+    "commandCompleted": "Command completed with no output",
+    "getOutputFailed": "Failed to get output",
+    "emptyOutput": "Output is empty",
+    "viewFullContent": "View full content",
+    "openWithDefault": "Open with system default app",
+    "closeFull": "Close (ESC)",
+    "userAnswered": "User has answered questions",
+    "claudeAsking": "Claude is asking user",
+    "noPlanContent": "(No plan content)"
+  },
+  "usageDashboard": {
+    "today": "Today",
+    "all": "All",
+    "last7Days": "Last 7 days",
+    "last30Days": "Last 30 days"
+  },
+  "storage": {
+    "updateRowFailed": "Failed to update row",
+    "deleteRowFailed": "Failed to delete row",
+    "insertRowFailed": "Failed to insert row"
+  },
+  "sessionList": {
+    "deleting": "Deleting...",
+    "deleteSelected": "Delete selected ({count})",
+    "cancelSelection": "Cancel selection",
+    "batchSelection": "Batch selection",
+    "sessionListLabel": "Session list",
+    "confirmDelete": "Confirm delete"
+  },
+  "sessionHeader": {
+    "enterPathOrBrowse": "Enter project path or click browse button to select"
+  },
+  "promptNavigator": {
+    "searchPrompts": "Search prompts... (Ctrl+F)"
+  },
+  "projectList": {
+    "gridView": "Grid view",
+    "listView": "List view",
+    "projectListLabel": "Project list",
+    "confirmDelete": "Confirm delete"
+  },
+  "mcpImport": {
+    "invalidJson": "Invalid JSON format. Please check the input format.",
+    "enterServerName": "Please enter a name for this server:",
+    "unrecognizedFormat": "Unrecognized JSON format. MCP server configuration format required.",
+    "importTextFailed": "Import text failed",
+    "importJsonFailed": "Import JSON file failed",
+    "exportSuccess": "✅ MCP server configuration exported successfully! File saved to downloads folder.",
+    "scopeLocal": "Local (this project only)",
+    "scopeProject": "Project (shared via .mcp.json)",
+    "scopeUser": "User (all projects)",
+    "pasteConfig": "Paste MCP server configuration JSON..."
+  },
+  "viewRouter": {
+    "projectDeleted": "Project \"{name}\" deleted successfully"
+  },
+  "sidebar": {
+    "about": "About",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar"
+  },
+  "hooksEditor": {
+    "commonPatterns": "Common patterns",
+    "enterCommand": "Enter command line command...",
+    "saving": "Saving...",
+    "save": "Save"
+  },
+  "fileEditor": {
+    "back": "Back",
+    "saving": "Saving...",
+    "save": "Save",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?"
+  },
+  "filePicker": {
+    "clickToEnterDoubleToSelect": "Click to enter • Double-click to select",
+    "doubleClickToSelect": "Double-click to select",
+    "directoryClickDoubleSelect": "Directory: click to enter, double-click to select • File: double-click to select",
+    "keyboardNav": "↑↓ Navigate • Enter Select • → Enter directory • ← Back • Esc Close"
+  },
+  "executionEngine": {
+    "enterCustomModel": "Enter custom model name"
+  },
+  "floatingInput": {
+    "clickToZoom": "Click to zoom",
+    "remove": "Remove",
+    "enterPrompt": "Enter your prompt...",
+    "enhancing": "Enhancing...",
+    "enhancePrompt": "Enhance prompt"
+  },
+  "deletedProjects": {
+    "restoreProject": "Restore project",
+    "permanentlyDelete": "Permanently delete"
+  },
+  "updateBadge": {
+    "newVersionAvailable": "New version available",
+    "closeUpdateReminder": "Close update reminder"
+  },
+  "dialogs": {
+    "noPlan": "(No plan content)",
+    "openDownloadFailed": "Failed to open download page",
+    "cannotOpenDownloadPage": "Cannot open download page, please manually visit GitHub Releases",
+    "autoUpdateUnavailable": "Auto-update unavailable, please use manual download",
+    "downloadInstallFailed": "Download and install failed, please try manual download",
+    "restartFailed": "Restart failed, please manually restart the application",
+    "loading": "Loading...",
+    "unknown": "Unknown",
+    "openProjectPageFailed": "Failed to open project page"
+  },
+  "codexEditor": {
+    "codexDirNotFound": "Codex directory not found. Please ensure Codex CLI is installed.",
+    "cannotLoadAgents": "Cannot load AGENTS.md file",
+    "agentsSaveSuccess": "AGENTS.md saved successfully",
+    "agentsSaveFailed": "Failed to save AGENTS.md",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
+    "back": "Back",
+    "saving": "Saving...",
+    "save": "Save"
+  },
+  "claudeSession": {
+    "userCancelled": "User cancelled session",
+    "loadingHistory": "Loading session history...",
+    "initializingClaude": "Initializing Claude Code...",
+    "promptNav": "Prompt navigation - Quick jump to any prompt",
+    "newMessage": "New message - Click to scroll to bottom",
+    "scrollToTop": "Scroll to top",
+    "scrollToBottom": "Scroll to bottom"
+  }
 }

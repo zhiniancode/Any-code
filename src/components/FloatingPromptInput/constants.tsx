@@ -29,19 +29,21 @@ export const MODELS: ModelConfig[] = [
  * Thinking modes configuration
  * Simplified to on/off toggle (conforming to official Claude Code standard)
  * Default tokens when enabled: 31999 (balanced for most use cases)
+ * 
+ * Note: Names and descriptions are translation keys that will be resolved at runtime
  */
 export const THINKING_MODES: ThinkingModeConfig[] = [
   {
     id: "off",
-    name: "思考模式: 关闭",
-    description: "正常响应速度",
+    name: "promptInput.thinkingModeOff",
+    description: "promptInput.normalSpeed",
     level: 0,
     tokens: undefined // No extended thinking
   },
   {
     id: "on",
-    name: "思考模式: 开启",
-    description: "启用深度思考 (32K tokens)",
+    name: "promptInput.thinkingModeOn",
+    description: "promptInput.deepThinking",
     level: 1,
     tokens: 31999 // Default thinking tokens
   }
