@@ -154,7 +154,7 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
                             return (
                               <ErrorBoundary
                                 fallback={() => (
-                                  <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80 bg-muted/20 rounded">
+                                  <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80 bg-muted/20 rounded whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
                                     {codeStr}
                                   </pre>
                                 )}
@@ -173,7 +173,7 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
                           // 代码块但不支持语法高亮，降级为纯文本
                           if (!inline && match) {
                             return (
-                              <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80 bg-muted/20 rounded">
+                              <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80 bg-muted/20 rounded whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
                                 {codeStr}
                               </pre>
                             );

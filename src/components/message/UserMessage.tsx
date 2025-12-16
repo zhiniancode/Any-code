@@ -277,10 +277,11 @@ export const UserMessage: React.FC<UserMessageProps> = ({
                   ref={contentRef}
                   className={cn(
                     "text-sm leading-relaxed",
-                    isSkills ? "" : "whitespace-pre-wrap",
+                    isSkills ? "" : "whitespace-pre-wrap break-words",
                     // 折叠样式：未展开时限制为 5 行
                     shouldCollapse && !isExpanded && "line-clamp-5 overflow-hidden"
                   )}
+                  style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
                 >
                   {displayContent}
                   {/* 占位符，确保文字不遮挡绝对定位的按钮 */}

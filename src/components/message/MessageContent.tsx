@@ -53,7 +53,7 @@ const PlainTextCodeBlock: React.FC<PlainTextCodeBlockProps> = ({
           {buttonLabel}
         </button>
       </div>
-      <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80 whitespace-pre-wrap">
+      <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80 whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
         {code}
       </pre>
     </div>
@@ -250,7 +250,7 @@ const MessageContentComponent: React.FC<MessageContentProps> = ({
             <p className="text-sm font-medium text-destructive mb-2">
               渲染内容时出错 (Markdown/Syntax Highlighting)
             </p>
-            <pre className="text-xs font-mono whitespace-pre-wrap text-muted-foreground bg-background/50 p-2 rounded max-h-[200px] overflow-y-auto">
+            <pre className="text-xs font-mono whitespace-pre-wrap break-words text-muted-foreground bg-background/50 p-2 rounded max-h-[200px] overflow-y-auto" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               {textToDisplay}
             </pre>
             <details className="mt-2">
@@ -297,7 +297,7 @@ const MessageContentComponent: React.FC<MessageContentProps> = ({
                       <div className="flex items-center justify-between px-3 py-1.5 bg-muted/30">
                         <span className="text-xs font-mono text-muted-foreground">{language} (Plain Text)</span>
                       </div>
-                      <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80">
+                      <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80 whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
                         {code}
                       </pre>
                     </div>

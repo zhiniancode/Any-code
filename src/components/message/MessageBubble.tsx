@@ -54,9 +54,10 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
                 "rounded-[20px] px-5 py-2.5", // More rounded, slightly tighter padding
                 "bg-secondary text-secondary-foreground", // Use semantic colors
                 "border border-border/50 shadow-sm", // Add subtle border and shadow
-                "break-words text-[15px] leading-relaxed",
+                "break-words text-[15px] leading-relaxed overflow-hidden",
                 bubbleClassName
               )}
+              style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
             >
               {children}
             </div>
@@ -64,12 +65,13 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
         </div>
       ) : (
         // AI Message: Clean Document Style (No Card)
-        <div className="flex flex-col w-full max-w-full">
+        <div className="flex flex-col w-full max-w-full overflow-hidden">
           <div
             className={cn(
-              "w-full pr-4", // No border, no background, just spacing
+              "w-full pr-4 overflow-hidden", // No border, no background, just spacing
               bubbleClassName
             )}
+            style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
           >
              {children}
           </div>

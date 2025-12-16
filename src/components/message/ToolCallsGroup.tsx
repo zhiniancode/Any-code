@@ -359,7 +359,7 @@ const FallbackToolRender: React.FC<FallbackToolRenderProps> = ({ tool, result })
           <summary className="cursor-pointer text-muted-foreground hover:text-foreground select-none">
             {t('tools.inputParams')}
           </summary>
-          <pre className="mt-1 p-2 bg-muted rounded text-[10px] overflow-x-auto whitespace-pre-wrap">
+          <pre className="mt-1 p-2 bg-muted rounded text-[10px] overflow-x-auto whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
             {JSON.stringify(tool.input, null, 2)}
           </pre>
         </details>
@@ -372,10 +372,10 @@ const FallbackToolRender: React.FC<FallbackToolRenderProps> = ({ tool, result })
             <pre
               ref={resultRef}
               className={cn(
-                'text-[10px] overflow-x-auto whitespace-pre-wrap transition-[max-height]',
+                'text-[10px] overflow-x-auto whitespace-pre-wrap break-words transition-[max-height]',
                 shouldCollapse && collapsed && 'overflow-hidden'
               )}
-              style={shouldCollapse && collapsed ? { maxHeight: `${COLLAPSE_HEIGHT}px` } : undefined}
+              style={{ overflowWrap: 'anywhere', ...(shouldCollapse && collapsed ? { maxHeight: `${COLLAPSE_HEIGHT}px` } : {}) }}
             >
               {typeof result.content === 'string' ? result.content : JSON.stringify(result.content, null, 2)}
             </pre>
