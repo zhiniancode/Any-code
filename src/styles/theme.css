@@ -2,68 +2,68 @@
    🎨 MODERN DESIGN SYSTEM - Material 3 Inspired
    ======================================== */
 
-/* Default (Dark) theme configuration */
+/* Default (Dark) theme configuration - Medium Gray */
 :root,
 .dark {
-  /* 🎨 Primary Colors - More vibrant and expressive */
-  --color-background: oklch(0.13 0.015 240);
-  --color-foreground: oklch(0.98 0.005 240);
-  --color-card: oklch(0.16 0.018 240);
-  --color-card-foreground: oklch(0.98 0.005 240);
-  --color-popover: oklch(0.14 0.016 240);
-  --color-popover-foreground: oklch(0.98 0.005 240);
-  
+  /* 🎨 Primary Colors - Medium gray for comfortable viewing */
+  --color-background: oklch(0.23 0.003 260);
+  --color-foreground: oklch(0.93 0.003 260);
+  --color-card: oklch(0.27 0.004 260);
+  --color-card-foreground: oklch(0.93 0.003 260);
+  --color-popover: oklch(0.25 0.003 260);
+  --color-popover-foreground: oklch(0.93 0.003 260);
+
   /* 🌟 Brand Colors - Vibrant blue accent */
-  --color-primary: oklch(0.65 0.22 250);
-  --color-primary-hover: oklch(0.70 0.24 250);
-  --color-primary-active: oklch(0.60 0.20 250);
-  --color-primary-foreground: oklch(0.98 0.005 240);
-  
+  --color-primary: oklch(0.62 0.20 250);
+  --color-primary-hover: oklch(0.67 0.22 250);
+  --color-primary-active: oklch(0.57 0.18 250);
+  --color-primary-foreground: oklch(0.98 0.003 260);
+
   /* 📦 Secondary Colors */
-  --color-secondary: oklch(0.20 0.02 240);
-  --color-secondary-hover: oklch(0.24 0.025 240);
-  --color-secondary-foreground: oklch(0.96 0.005 240);
-  
+  --color-secondary: oklch(0.30 0.004 260);
+  --color-secondary-hover: oklch(0.34 0.005 260);
+  --color-secondary-foreground: oklch(0.92 0.003 260);
+
   /* 🔇 Muted Colors */
-  --color-muted: oklch(0.18 0.015 240);
-  --color-muted-hover: oklch(0.22 0.018 240);
-  --color-muted-foreground: oklch(0.75 0.012 240);
-  
+  --color-muted: oklch(0.28 0.003 260);
+  --color-muted-hover: oklch(0.32 0.004 260);
+  --color-muted-foreground: oklch(0.60 0.005 260);
+
   /* ✨ Accent Colors */
-  --color-accent: oklch(0.22 0.025 280);
-  --color-accent-hover: oklch(0.26 0.03 280);
-  --color-accent-foreground: oklch(0.98 0.005 240);
-  
+  --color-accent: oklch(0.32 0.006 260);
+  --color-accent-hover: oklch(0.36 0.008 260);
+  --color-accent-foreground: oklch(0.93 0.003 260);
+
   /* ⚠️ Status Colors */
-  --color-destructive: oklch(0.62 0.25 25);
-  --color-destructive-hover: oklch(0.58 0.28 25);
-  --color-destructive-foreground: oklch(0.98 0.005 240);
-  
-  --color-success: oklch(0.68 0.20 145);
-  --color-success-hover: oklch(0.64 0.22 145);
-  --color-success-foreground: oklch(0.98 0.005 145);
-  --color-warning: oklch(0.75 0.18 75);
-  --color-warning-hover: oklch(0.70 0.20 75);
-  --color-warning-foreground: oklch(0.15 0.02 75);
-  --color-info: oklch(0.65 0.22 250);
-  --color-info-hover: oklch(0.60 0.24 250);
-  --color-info-foreground: oklch(0.98 0.005 250);
-  
+  --color-destructive: oklch(0.60 0.22 25);
+  --color-destructive-hover: oklch(0.55 0.25 25);
+  --color-destructive-foreground: oklch(0.98 0.003 260);
+
+  --color-success: oklch(0.65 0.18 145);
+  --color-success-hover: oklch(0.60 0.20 145);
+  --color-success-foreground: oklch(0.98 0.003 145);
+  --color-warning: oklch(0.72 0.16 75);
+  --color-warning-hover: oklch(0.67 0.18 75);
+  --color-warning-foreground: oklch(0.18 0.02 75);
+  --color-info: oklch(0.62 0.20 250);
+  --color-info-hover: oklch(0.57 0.22 250);
+  --color-info-foreground: oklch(0.98 0.003 250);
+
   /* 🎨 UI Elements */
-  --color-border: oklch(0.24 0.018 240);
-  --color-border-hover: oklch(0.30 0.022 240);
-  --color-input: oklch(0.18 0.015 240);
-  --color-ring: oklch(0.65 0.22 250);
-  
-  /* 🌫️ Glassmorphism Variables (Dark) - Deep & Subtle */
-  --glass-border: oklch(0.98 0.005 240 / 0.08);
-  --glass-bg: oklch(0.13 0.015 240 / 0.7);
+  --color-border: oklch(0.36 0.005 260);
+  --color-border-hover: oklch(0.42 0.006 260);
+  --color-input: oklch(0.28 0.003 260);
+  --color-ring: oklch(0.62 0.20 250);
+
+  /* 🌫️ Glassmorphism Variables (Dark) - Medium Gray */
+  --glass-border: oklch(0.93 0.003 260 / 0.12);
+  --glass-bg: oklch(0.23 0.003 260 / 0.80);
   --glass-blur: 12px;
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
 
   /* Additional colors */
-  --color-green-500: oklch(0.72 0.20 142);
-  --color-green-600: oklch(0.64 0.22 142);
+  --color-green-500: oklch(0.68 0.18 142);
+  --color-green-600: oklch(0.60 0.20 142);
 
   /* 📐 Border Radius */
   --radius-xs: 0.375rem;

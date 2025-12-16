@@ -2,14 +2,14 @@
    🧩 COMPONENT STYLES
    ======================================== */
 
-/* Markdown Editor Dark Mode Styles */
+/* Markdown Editor Dark Mode Styles - Medium Gray */
 [data-color-mode="dark"] {
-  --color-border-default: rgb(48, 54, 61);
-  --color-canvas-default: rgb(13, 17, 23);
-  --color-canvas-subtle: rgb(22, 27, 34);
-  --color-fg-default: rgb(201, 209, 217);
-  --color-fg-muted: rgb(139, 148, 158);
-  --color-fg-subtle: rgb(110, 118, 129);
+  --color-border-default: rgb(75, 75, 80);
+  --color-canvas-default: rgb(48, 48, 52);
+  --color-canvas-subtle: rgb(58, 58, 62);
+  --color-fg-default: rgb(225, 225, 230);
+  --color-fg-muted: rgb(145, 145, 152);
+  --color-fg-subtle: rgb(115, 115, 122);
   --color-accent-fg: rgb(88, 166, 255);
   --color-danger-fg: rgb(248, 81, 73);
 }
@@ -306,60 +306,60 @@ code:hover::-webkit-scrollbar-thumb,
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/* Dark theme specific enhancements */
+/* Dark theme specific enhancements - Medium Gray */
 .dark .floating-element {
-  background-color: oklch(0.13 0.015 240 / 0.95);
+  background-color: oklch(0.23 0.003 260 / 0.95);
   backdrop-filter: blur(12px) saturate(180%);
 }
 
 /* Dark theme specific backdrop and transparency fixes */
 .dark .bg-background\/95 {
-  background-color: oklch(0.13 0.015 240 / 0.95) !important;
+  background-color: oklch(0.23 0.003 260 / 0.95) !important;
   backdrop-filter: blur(12px) saturate(180%);
 }
 
 .dark .bg-background\/80 {
-  background-color: oklch(0.13 0.015 240 / 0.80) !important;
+  background-color: oklch(0.23 0.003 260 / 0.80) !important;
   backdrop-filter: blur(8px) saturate(150%);
 }
 
 /* Improve floating input contrast in dark theme */
 .dark .floating-input-container {
-  background-color: oklch(0.13 0.015 240 / 0.95) !important;
-  border-top-color: oklch(0.24 0.018 240) !important;
-  box-shadow: 0 -8px 16px -4px rgba(0, 0, 0, 0.4), 0 -4px 8px -2px rgba(0, 0, 0, 0.3) !important;
+  background-color: oklch(0.23 0.003 260 / 0.95) !important;
+  border-top-color: oklch(0.36 0.005 260) !important;
+  box-shadow: 0 -8px 16px -4px rgba(0, 0, 0, 0.28), 0 -4px 8px -2px rgba(0, 0, 0, 0.18) !important;
 }
 
 /* Better text contrast on dark backgrounds */
 .dark .text-muted-foreground {
-  color: oklch(0.65 0.01 240) !important;
+  color: oklch(0.60 0.005 260) !important;
 }
 
 /* Improve card contrast in dark theme */
 .dark .bg-card {
-  background-color: oklch(0.16 0.018 240) !important;
-  border-color: oklch(0.24 0.018 240) !important;
+  background-color: oklch(0.27 0.004 260) !important;
+  border-color: oklch(0.36 0.005 260) !important;
 }
 
 /* Better popover contrast in dark theme */
 .dark .bg-popover {
-  background-color: oklch(0.14 0.016 240) !important;
-  border-color: oklch(0.24 0.018 240) !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+  background-color: oklch(0.25 0.003 260) !important;
+  border-color: oklch(0.36 0.005 260) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.20) !important;
 }
 
 /* Enhanced border visibility in dark theme */
 .dark .border-border\/50 {
-  border-color: oklch(0.30 0.022 240 / 0.5) !important;
+  border-color: oklch(0.42 0.006 260 / 0.5) !important;
 }
 
 /* Better shadow for dark theme */
 .dark .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -2px rgba(0, 0, 0, 0.30) !important;
 }
 
 .dark .shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 10px 10px -5px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.50), 0 10px 10px -5px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* Light theme specific enhancements */
