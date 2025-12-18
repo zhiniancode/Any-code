@@ -157,12 +157,34 @@ jobs:
           WINDOWS_MSI_SIG=$(find artifacts -name "*.msi.sig" -type f | head -n 1)
           WINDOWS_NSIS_SIG=$(find artifacts -name "*-setup.exe.sig" -type f | head -n 1)
 
+          # Fail fast if any required signature file is missing.
+          missing=0
+          if [ -z "$DARWIN_AARCH64_SIG" ]; then echo "::error::Missing signature file for darwin-aarch64 (*.app.tar.gz.sig)"; missing=1; fi
+          if [ -z "$DARWIN_X64_SIG" ]; then echo "::error::Missing signature file for darwin-x86_64 (*.app.tar.gz.sig)"; missing=1; fi
+          if [ -z "$LINUX_SIG" ]; then echo "::error::Missing signature file for linux-x86_64 (*.AppImage.sig)"; missing=1; fi
+          if [ -z "$WINDOWS_NSIS_SIG" ]; then echo "::error::Missing signature file for windows-x86_64 (*-setup.exe.sig)"; missing=1; fi
+          if [ "$missing" -ne 0 ]; then
+            echo "Updater signatures are required. Ensure bundle.createUpdaterArtifacts=true and TAURI_SIGNING_PRIVATE_KEY is set during build."
+            exit 1
+          fi
+
           # Read signatures
-          DARWIN_AARCH64_SIGNATURE=$(cat "$DARWIN_AARCH64_SIG" 2>/dev/null || echo "")
-          DARWIN_X64_SIGNATURE=$(cat "$DARWIN_X64_SIG" 2>/dev/null || echo "")
-          LINUX_SIGNATURE=$(cat "$LINUX_SIG" 2>/dev/null || echo "")
+          DARWIN_AARCH64_SIGNATURE=$(cat "$DARWIN_AARCH64_SIG")
+          DARWIN_X64_SIGNATURE=$(cat "$DARWIN_X64_SIG")
+          LINUX_SIGNATURE=$(cat "$LINUX_SIG")
           WINDOWS_MSI_SIGNATURE=$(cat "$WINDOWS_MSI_SIG" 2>/dev/null || echo "")
-          WINDOWS_NSIS_SIGNATURE=$(cat "$WINDOWS_NSIS_SIG" 2>/dev/null || echo "")
+          WINDOWS_NSIS_SIGNATURE=$(cat "$WINDOWS_NSIS_SIG")
+
+          # Fail fast if any required signature content is empty.
+          empty=0
+          if [ -z "$DARWIN_AARCH64_SIGNATURE" ]; then echo "::error::Empty signature content for darwin-aarch64"; empty=1; fi
+          if [ -z "$DARWIN_X64_SIGNATURE" ]; then echo "::error::Empty signature content for darwin-x86_64"; empty=1; fi
+          if [ -z "$LINUX_SIGNATURE" ]; then echo "::error::Empty signature content for linux-x86_64"; empty=1; fi
+          if [ -z "$WINDOWS_NSIS_SIGNATURE" ]; then echo "::error::Empty signature content for windows-x86_64"; empty=1; fi
+          if [ "$empty" -ne 0 ]; then
+            echo "Refusing to publish an updater manifest with empty signatures."
+            exit 1
+          fi
 
           # Generate latest.json
           cat > latest.json << EOF

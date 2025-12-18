@@ -79,7 +79,9 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
           totalBytes = event.total || 0;
           downloadedBytes = 0;
         } else if (event.event === "Progress") {
-          downloadedBytes += event.downloaded || 0;
+          const next = event.downloaded || 0;
+          // 兼容不同实现：有的返回累计下载量，有的返回本次 chunk 大小
+          downloadedBytes = next >= downloadedBytes ? next : downloadedBytes + next;
           if (totalBytes > 0) {
             setDownloadProgress(Math.round((downloadedBytes / totalBytes) * 100));
           }
@@ -90,8 +92,12 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
       });
     } catch (err) {
       console.error("下载安装失败:", err);
-      setError(err instanceof Error ? err.message : "下载安装失败，请尝试手动下载");
-      setIsPortable(true);
+      const message = err instanceof Error ? err.message : "下载安装失败，请尝试手动下载";
+      if (message.toLowerCase().includes("signature") || message.toLowerCase().includes("verify")) {
+        setError("更新包签名校验失败，无法自动更新；请前往下载页面手动更新。");
+      } else {
+        setError(message);
+      }
     } finally {
       setIsDownloading(false);
     }
@@ -139,7 +145,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
         {isPortable && (
           <div className={cn("p-3 rounded-lg", statusStyles.info)}>
             <p className="text-sm">
-              ℹ️ 检测到您使用的是免安装版本，不支持自动更新。请点击下方按钮前往下载页面手动下载最新版本。
+              提示：检测到当前环境不支持自动更新（可能为免安装版本）。请点击下方按钮前往下载页面手动下载最新版本。
             </p>
           </div>
         )}
@@ -183,7 +189,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
         {isInstalled && (
           <div className={cn("p-3 rounded-lg", statusStyles.success)}>
             <p className="text-sm">
-              ✓ 更新已安装，请重启应用以使用新版本
+              更新已安装，请重启应用以使用新版本
             </p>
           </div>
         )}
@@ -208,19 +214,31 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
               立即重启
             </Button>
           ) : (
-            <Button onClick={handleDownloadAndInstall} disabled={isDownloading}>
-              {isDownloading ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  下载中...
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4 mr-2" />
-                  立即更新
-                </>
+            <>
+              <Button onClick={handleDownloadAndInstall} disabled={isDownloading}>
+                {isDownloading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    下载中...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    立即更新
+                  </>
+                )}
+              </Button>
+              {error && (
+                <Button
+                  variant="outline"
+                  onClick={handleOpenDownloadPage}
+                  disabled={isDownloading}
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  手动下载
+                </Button>
               )}
-            </Button>
+            </>
           )}
         </DialogFooter>
       </DialogContent>
