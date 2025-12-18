@@ -647,9 +647,16 @@ pub async fn get_claude_session_output(
     }
 }
 
+/// Helper function to check if prompt is a slash command
+/// Slash commands start with '/' and are typically short (like /help, /compact, /clear)
+fn is_slash_command(prompt: &str) -> bool {
+    let trimmed = prompt.trim();
+    trimmed.starts_with('/') && !trimmed.contains('\n') && trimmed.len() < 256
+}
+
 /// Helper function to spawn Claude process and handle streaming
-/// 🔥 修复：prompt 现在通过 stdin 管道传递，而非命令行参数
-/// 这样可以避免操作系统命令行长度限制（Windows ~8KB, Linux/macOS ~128KB-2MB）
+/// 🔥 修复：斜杠命令通过 -p 参数传递（触发命令解析），普通 prompt 通过 stdin 管道传递
+/// 这样既支持斜杠命令，又避免操作系统命令行长度限制（Windows ~8KB, Linux/macOS ~128KB-2MB）
 async fn spawn_claude_process(
     app: AppHandle,
     mut cmd: Command,
@@ -660,33 +667,53 @@ async fn spawn_claude_process(
     use std::sync::Mutex;
     use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 
+    // 🔥 关键修复：检测斜杠命令，通过 -p 参数传递以触发命令解析
+    // Claude CLI 只在 -p 参数中解析斜杠命令，stdin 管道不会触发
+    let use_p_flag = is_slash_command(&prompt);
+    if use_p_flag {
+        log::info!("Detected slash command, using -p flag: {}", prompt.trim());
+        cmd.arg("-p");
+        cmd.arg(&prompt);
+    }
+
     // Spawn the process
     let mut child = cmd
         .spawn()
         .map_err(|e| format!("Failed to spawn Claude: {}", e))?;
 
-    // 🔥 修复：通过 stdin 管道传递 prompt，避免命令行长度限制
-    // 这是解决长文本发送失败问题的关键修改
-    if let Some(mut stdin) = child.stdin.take() {
-        // 克隆 prompt 以便在 async 块中使用（避免生命周期问题）
-        let prompt_for_stdin = prompt.clone();
-        let prompt_len = prompt_for_stdin.len();
-        log::info!("Writing prompt to stdin ({} bytes)", prompt_len);
+    // 🔥 普通 prompt 通过 stdin 管道传递，避免命令行长度限制
+    // 斜杠命令已通过 -p 参数传递，不需要 stdin
+    if !use_p_flag {
+        if let Some(mut stdin) = child.stdin.take() {
+            // 克隆 prompt 以便在 async 块中使用（避免生命周期问题）
+            let prompt_for_stdin = prompt.clone();
+            let prompt_len = prompt_for_stdin.len();
+            log::info!("Writing prompt to stdin ({} bytes)", prompt_len);
 
-        // 使用 spawn 异步写入 stdin，避免阻塞主流程
-        tokio::spawn(async move {
-            if let Err(e) = stdin.write_all(prompt_for_stdin.as_bytes()).await {
-                log::error!("Failed to write prompt to stdin: {}", e);
-                return;
-            }
-            // 关闭 stdin 表示输入完成
-            if let Err(e) = stdin.shutdown().await {
-                log::warn!("Failed to shutdown stdin: {}", e);
-            }
-            log::info!("Successfully wrote prompt to stdin and closed");
-        });
+            // 使用 spawn 异步写入 stdin，避免阻塞主流程
+            tokio::spawn(async move {
+                if let Err(e) = stdin.write_all(prompt_for_stdin.as_bytes()).await {
+                    log::error!("Failed to write prompt to stdin: {}", e);
+                    return;
+                }
+                // 关闭 stdin 表示输入完成
+                if let Err(e) = stdin.shutdown().await {
+                    log::warn!("Failed to shutdown stdin: {}", e);
+                }
+                log::info!("Successfully wrote prompt to stdin and closed");
+            });
+        } else {
+            log::warn!("Failed to get stdin handle, prompt may not be sent");
+        }
     } else {
-        log::warn!("Failed to get stdin handle, prompt may not be sent");
+        // 斜杠命令模式：关闭 stdin 以信号结束
+        if let Some(mut stdin) = child.stdin.take() {
+            tokio::spawn(async move {
+                if let Err(e) = stdin.shutdown().await {
+                    log::warn!("Failed to shutdown stdin for slash command: {}", e);
+                }
+            });
+        }
     }
 
     // Get stdout and stderr
