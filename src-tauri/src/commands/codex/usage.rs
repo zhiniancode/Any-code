@@ -105,6 +105,15 @@ fn get_codex_pricing(model: &str) -> ModelPricing {
         };
     }
 
+    // GPT-5.2 (non-codex naming)
+    if normalized.contains("gpt-5.2") || normalized.contains("gpt5.2") {
+        return ModelPricing {
+            input: 1.75,
+            output: 14.00,
+            cache_read: 0.175,
+        };
+    }
+
     // GPT-5.1-Codex variants
     if normalized.contains("5.1-codex-max") || normalized.contains("5_1_codex_max") {
         return ModelPricing {
@@ -121,6 +130,15 @@ fn get_codex_pricing(model: &str) -> ModelPricing {
         };
     }
     if normalized.contains("5.1-codex") || normalized.contains("5_1_codex") {
+        return ModelPricing {
+            input: 1.25,
+            output: 10.00,
+            cache_read: 0.125,
+        };
+    }
+
+    // GPT-5.1 (non-codex naming)
+    if normalized.contains("gpt-5.1") || normalized.contains("gpt5.1") {
         return ModelPricing {
             input: 1.25,
             output: 10.00,
@@ -205,7 +223,7 @@ fn parse_session_for_usage(path: &PathBuf) -> Option<CodexSessionUsage> {
     let mut total_input_tokens: u64 = 0;
     let mut total_output_tokens: u64 = 0;
     let mut total_cached_tokens: u64 = 0;
-    let mut model: String = "codex-mini-latest".to_string();
+    let mut model: String = "unknown".to_string();
     let mut first_message: Option<String> = None;
     let mut last_timestamp: Option<String> = None;
     let mut last_total_input_tokens: Option<u64> = None;
@@ -223,8 +241,11 @@ fn parse_session_for_usage(path: &PathBuf) -> Option<CodexSessionUsage> {
 
                 let event_type = event["type"].as_str().unwrap_or("");
 
-                // Extract model from session_meta or model_selected
-                if event_type == "session_meta" || event_type == "model_selected" {
+                // Extract model from session_meta, model_selected, or turn_context
+                if event_type == "session_meta"
+                    || event_type == "model_selected"
+                    || event_type == "turn_context"
+                {
                     if let Some(m) = event["payload"]["model"].as_str() {
                         model = m.to_string();
                     }
