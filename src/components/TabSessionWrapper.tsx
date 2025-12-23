@@ -126,10 +126,32 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
 // 使用React.memo优化，避免不必要的重新渲染
 export const TabSessionWrapper = React.memo(TabSessionWrapperComponent, (prevProps, nextProps) => {
   // 自定义比较函数，只有这些props变化时才重新渲染
+
+  // 🔧 FIX: 当 session 从 undefined "升级"为有值时，不应触发重新渲染
+  // 因为 ClaudeCodeSession 内部已经通过 extractedSessionInfo 追踪到了 session 信息
+  // 如果此时重新渲染，会导致 MessagesProvider 被重新创建，消息丢失
+  const sessionIdUnchanged = (() => {
+    const prevId = prevProps.session?.id;
+    const nextId = nextProps.session?.id;
+
+    // 如果两者都是 undefined 或相同，返回 true
+    if (prevId === nextId) return true;
+
+    // 🔧 CRITICAL: 如果 prevId 是 undefined，nextId 有值，这是 "session 升级"
+    // 不应该触发重新渲染，返回 true 表示"相同"
+    if (prevId === undefined && nextId !== undefined) {
+      console.debug('[TabSessionWrapper] Session upgraded from undefined to', nextId, '- skipping re-render');
+      return true;
+    }
+
+    // 其他情况（如 session 真的变了），返回 false
+    return false;
+  })();
+
   return (
     prevProps.tabId === nextProps.tabId &&
     prevProps.isActive === nextProps.isActive &&
-    prevProps.session?.id === nextProps.session?.id &&
+    sessionIdUnchanged &&
     prevProps.initialProjectPath === nextProps.initialProjectPath
     // onStreamingChange 等函数props通常是稳定的
   );

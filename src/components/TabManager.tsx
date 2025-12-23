@@ -157,31 +157,61 @@ export const TabManager: React.FC<TabManagerProps> = ({
   }, [createNewTabAsWindow]);
 
   // ✨ Phase 3: Simplified initialization (single responsibility, no race conditions)
-  useEffect(() => {
-    // Only run once
-    if (initializedRef.current) return;
-    initializedRef.current = true;
+  // 🔧 FIX: 使用 initialSession/initialProjectPath 的引用作为依赖，避免重复创建标签页
+  const initialSessionIdRef = useRef<string | undefined>(initialSession?.id);
+  const initialProjectPathRef = useRef<string | undefined>(initialProjectPath);
 
-    // 🔧 修复：新建操作应该覆盖已保存的标签页
-    const isNewOperation = initialSession || initialProjectPath;
+  useEffect(() => {
+    // Only run once per unique initial session/path combination
+    if (initializedRef.current) {
+      // 检查是否是相同的初始参数（防止组件重新挂载时重复创建）
+      const isSameSession = initialSession?.id === initialSessionIdRef.current;
+      const isSamePath = initialProjectPath === initialProjectPathRef.current;
+      if (isSameSession && isSamePath) {
+        return;
+      }
+      // 参数变化了，更新引用但不创建新标签页（用户可能只是返回查看）
+      initialSessionIdRef.current = initialSession?.id;
+      initialProjectPathRef.current = initialProjectPath;
+      return;
+    }
+    initializedRef.current = true;
+    initialSessionIdRef.current = initialSession?.id;
+    initialProjectPathRef.current = initialProjectPath;
+
+    // Helper: 标准化路径用于比较
+    const normalizePath = (p: string) => p?.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '') || '';
 
     // Priority 1: Initial session provided (highest priority)
     if (initialSession) {
+      // 🔧 FIX: 检查是否已有相同 session 的标签页
+      const existingTab = tabs.find(t => t.session?.id === initialSession.id);
+      if (existingTab) {
+        switchToTab(existingTab.id);
+        return;
+      }
       createNewTab(initialSession);
       return;
     }
 
     // Priority 2: Initial project path provided
     if (initialProjectPath) {
+      // 🔧 FIX: 检查是否已有相同 projectPath 的标签页（且该标签页没有 session，即是新建会话）
+      const normalizedInitPath = normalizePath(initialProjectPath);
+      const existingTab = tabs.find(t => {
+        const tabPath = t.projectPath || t.session?.project_path;
+        // 只匹配没有 session（新建会话）或 session.project_path 相同的标签页
+        return tabPath && normalizePath(tabPath) === normalizedInitPath;
+      });
+      if (existingTab) {
+        switchToTab(existingTab.id);
+        return;
+      }
       createNewTab(undefined, initialProjectPath);
       return;
     }
 
-    // Priority 3: Tabs restored from localStorage (only if no new operation)
-    if (tabs.length > 0 && !isNewOperation) {
-      return;
-    }
-
+    // Priority 3: Tabs restored from localStorage - do nothing, tabs are already there
     // Priority 4: No initial data - show empty state
   }, []); // Empty deps - only run once on mount
 
