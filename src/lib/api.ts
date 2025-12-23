@@ -3208,6 +3208,54 @@ export const api = {
     }
   },
 
+  // ============================================================================
+  // Claude WSL Mode Configuration
+  // ============================================================================
+
+  /**
+   * Gets Claude WSL mode configuration
+   * @returns Promise resolving to Claude WSL mode configuration info
+   */
+  async getClaudeWslModeConfig(): Promise<{
+    mode: 'auto' | 'native' | 'wsl';
+    wslDistro: string | null;
+    wslAvailable: boolean;
+    availableDistros: string[];
+    wslEnabled: boolean;
+    wslClaudePath: string | null;
+    wslClaudeVersion: string | null;
+    nativeAvailable: boolean;
+    actualMode: 'native' | 'wsl';
+  }> {
+    try {
+      return await invoke("get_claude_wsl_mode_config");
+    } catch (error) {
+      console.error("Failed to get Claude WSL mode config:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Sets Claude WSL mode configuration
+   * @param mode - The mode to set: 'auto', 'native', or 'wsl'
+   * @param wslDistro - Optional WSL distro name
+   * @returns Promise resolving to success message
+   */
+  async setClaudeWslModeConfig(
+    mode: 'auto' | 'native' | 'wsl',
+    wslDistro?: string | null
+  ): Promise<string> {
+    try {
+      return await invoke("set_claude_wsl_mode_config", {
+        mode,
+        wslDistro: wslDistro || null
+      });
+    } catch (error) {
+      console.error("Failed to set Claude WSL mode config:", error);
+      throw error;
+    }
+  },
+
   /**
    * Get current Codex CLI path（优先自定义，其次自动检测）
    */

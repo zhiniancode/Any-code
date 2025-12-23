@@ -19,6 +19,8 @@ pub use self::config::{
     check_claude_version, clear_custom_claude_path, find_claude_md_files, get_available_tools,
     get_claude_execution_config, get_claude_path, get_claude_permission_config,
     get_claude_settings, get_codex_system_prompt, get_permission_presets, get_system_prompt,
+    // Claude WSL mode configuration
+    get_claude_wsl_mode_config, set_claude_wsl_mode_config,
     open_new_session, read_claude_md_file, reset_claude_execution_config, save_claude_md_file,
     save_claude_settings, save_codex_system_prompt, save_system_prompt, set_custom_claude_path,
     update_claude_execution_config, update_claude_permission_config, update_thinking_mode,

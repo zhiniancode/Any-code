@@ -32,6 +32,8 @@ use commands::claude::{
     save_claude_settings, save_codex_system_prompt, save_system_prompt, search_files,
     set_custom_claude_path, update_claude_execution_config, update_claude_permission_config,
     update_hooks_config, update_thinking_mode, validate_hook_command, validate_permission_config,
+    // Claude WSL mode configuration
+    get_claude_wsl_mode_config, set_claude_wsl_mode_config,
     ClaudeProcessState,
 };
 use commands::mcp::{
@@ -327,6 +329,9 @@ fn main() {
             set_custom_claude_path,
             get_claude_path,
             clear_custom_claude_path,
+            // Claude WSL Mode Configuration
+            get_claude_wsl_mode_config,
+            set_claude_wsl_mode_config,
             // Acemcp Integration
             enhance_prompt_with_context,
             test_acemcp_availability,

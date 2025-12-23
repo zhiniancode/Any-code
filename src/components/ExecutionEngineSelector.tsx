@@ -29,6 +29,7 @@ import type { CodexExecutionMode } from '@/types/codex';
 
 export type ExecutionEngine = 'claude' | 'codex' | 'gemini';
 export type CodexRuntimeMode = 'auto' | 'native' | 'wsl';
+export type ClaudeRuntimeMode = 'auto' | 'native' | 'wsl';
 
 export interface ExecutionEngineConfig {
   engine: ExecutionEngine;
@@ -66,6 +67,19 @@ interface GeminiWslModeConfig {
   nativeAvailable: boolean;
 }
 
+// Claude WSL mode configuration
+interface ClaudeWslModeConfig {
+  mode: ClaudeRuntimeMode;
+  wslDistro: string | null;
+  wslAvailable: boolean;
+  availableDistros: string[];
+  wslEnabled: boolean;
+  wslClaudePath: string | null;
+  wslClaudeVersion: string | null;
+  nativeAvailable: boolean;
+  actualMode: 'native' | 'wsl';
+}
+
 interface ExecutionEngineSelectorProps {
   value: ExecutionEngineConfig;
   onChange: (config: ExecutionEngineConfig) => void;
@@ -90,17 +104,22 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
     codexVersion,
     geminiInstalled: geminiAvailable,
     geminiVersion,
+    claudeInstalled,
+    claudeVersion,
     codexModeConfig: cachedCodexModeConfig,
     geminiWslModeConfig: cachedGeminiWslModeConfig,
+    claudeWslModeConfig: cachedClaudeWslModeConfig,
   } = useEngineStatus();
 
   // 本地状态用于跟踪用户修改（保存后立即更新 UI）
   const [localCodexModeConfig, setLocalCodexModeConfig] = useState<CodexModeConfig | null>(null);
   const [localGeminiWslModeConfig, setLocalGeminiWslModeConfig] = useState<GeminiWslModeConfig | null>(null);
+  const [localClaudeWslModeConfig, setLocalClaudeWslModeConfig] = useState<ClaudeWslModeConfig | null>(null);
 
   // 使用本地修改的值，如果没有则使用缓存的值
   const codexModeConfig: CodexModeConfig | null = localCodexModeConfig || cachedCodexModeConfig || null;
   const geminiWslModeConfig: GeminiWslModeConfig | null = localGeminiWslModeConfig || cachedGeminiWslModeConfig || null;
+  const claudeWslModeConfig: ClaudeWslModeConfig | null = localClaudeWslModeConfig || cachedClaudeWslModeConfig || null;
 
   const handleCodexRuntimeModeChange = async (mode: CodexRuntimeMode) => {
     if (!codexModeConfig) return;
@@ -239,6 +258,79 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
       }
     } catch (error) {
       console.error('[ExecutionEngineSelector] Failed to save Gemini WSL distro:', error);
+      await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), {
+        title: '错误',
+        kind: 'error',
+      });
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  const handleClaudeRuntimeModeChange = async (mode: ClaudeRuntimeMode) => {
+    if (!claudeWslModeConfig) return;
+
+    setSavingConfig(true);
+    try {
+      await api.setClaudeWslModeConfig(mode, claudeWslModeConfig.wslDistro);
+      setLocalClaudeWslModeConfig({ ...claudeWslModeConfig, mode });
+      // 使用 Tauri 原生对话框询问用户是否重启
+      const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
+        title: '重启应用',
+        kind: 'info',
+        okLabel: '立即重启',
+        cancelLabel: '稍后重启',
+      });
+      if (shouldRestart) {
+        try {
+          await relaunchApp();
+        } catch (restartError) {
+          console.error('[ExecutionEngineSelector] Failed to restart:', restartError);
+          await message('配置已保存，但自动重启失败。请手动重启应用以使更改生效。', {
+            title: '提示',
+            kind: 'warning',
+          });
+        }
+      }
+    } catch (error) {
+      console.error('[ExecutionEngineSelector] Failed to save Claude WSL mode config:', error);
+      await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), {
+        title: '错误',
+        kind: 'error',
+      });
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  const handleClaudeWslDistroChange = async (distro: string) => {
+    if (!claudeWslModeConfig) return;
+
+    const newDistro = distro === '__default__' ? null : distro;
+    setSavingConfig(true);
+    try {
+      await api.setClaudeWslModeConfig(claudeWslModeConfig.mode, newDistro);
+      setLocalClaudeWslModeConfig({ ...claudeWslModeConfig, wslDistro: newDistro });
+      // 使用 Tauri 原生对话框询问用户是否重启
+      const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
+        title: '重启应用',
+        kind: 'info',
+        okLabel: '立即重启',
+        cancelLabel: '稍后重启',
+      });
+      if (shouldRestart) {
+        try {
+          await relaunchApp();
+        } catch (restartError) {
+          console.error('[ExecutionEngineSelector] Failed to restart:', restartError);
+          await message('配置已保存，但自动重启失败。请手动重启应用以使更改生效。', {
+            title: '提示',
+            kind: 'warning',
+          });
+        }
+      }
+    } catch (error) {
+      console.error('[ExecutionEngineSelector] Failed to save Claude WSL distro:', error);
       await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), {
         title: '错误',
         kind: 'error',
@@ -663,9 +755,124 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
 
           {/* Claude-specific settings */}
           {value.engine === 'claude' && (
-            <div className="text-sm text-muted-foreground">
-              <p>Claude Code 配置请前往设置页面。</p>
-            </div>
+            <>
+              {/* Status */}
+              <div className="rounded-md border p-2 bg-muted/50">
+                <div className="flex items-center gap-2 text-xs">
+                  <Zap className="h-3 w-3" />
+                  <div className={`h-2 w-2 rounded-full ${claudeInstalled ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <span>{claudeInstalled ? '已安装' : '未安装'}</span>
+                  {claudeVersion && <span className="text-muted-foreground">• {claudeVersion}</span>}
+                </div>
+              </div>
+
+              {/* WSL Mode Configuration (Windows only) */}
+              {claudeWslModeConfig && (claudeWslModeConfig.nativeAvailable || claudeWslModeConfig.wslAvailable) && (
+                <>
+                  <div className="h-px bg-border" />
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Terminal className="h-4 w-4" />
+                      运行环境
+                    </Label>
+                    <Select
+                      value={claudeWslModeConfig.mode}
+                      onValueChange={(v) => handleClaudeRuntimeModeChange(v as ClaudeRuntimeMode)}
+                      disabled={savingConfig}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="auto">
+                          <div>
+                            <div className="font-medium">自动检测</div>
+                            <div className="text-xs text-muted-foreground">原生优先，WSL 后备</div>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="native" disabled={!claudeWslModeConfig.nativeAvailable}>
+                          <div className="flex items-center gap-2">
+                            <Monitor className="h-3 w-3" />
+                            <div>
+                              <div className="font-medium">Windows 原生</div>
+                              <div className="text-xs text-muted-foreground">
+                                {claudeWslModeConfig.nativeAvailable ? '使用 Windows 版 Claude' : '未安装'}
+                              </div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="wsl" disabled={!claudeWslModeConfig.wslAvailable}>
+                          <div className="flex items-center gap-2">
+                            <Terminal className="h-3 w-3" />
+                            <div>
+                              <div className="font-medium">WSL</div>
+                              <div className="text-xs text-muted-foreground">
+                                {claudeWslModeConfig.wslAvailable ? '使用 WSL 中的 Claude' : '未安装'}
+                              </div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* WSL Distro Selection */}
+                  {claudeWslModeConfig.mode === 'wsl' && claudeWslModeConfig.availableDistros.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">WSL 发行版</Label>
+                      <Select
+                        value={claudeWslModeConfig.wslDistro || '__default__'}
+                        onValueChange={handleClaudeWslDistroChange}
+                        disabled={savingConfig}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__default__">
+                            <div className="text-muted-foreground">默认（自动选择）</div>
+                          </SelectItem>
+                          {claudeWslModeConfig.availableDistros.map((distro) => (
+                            <SelectItem key={distro} value={distro}>
+                              {distro}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Current Runtime Status */}
+                  <div className="rounded-md border p-2 bg-muted/30 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">当前运行环境:</span>
+                      <span className="font-medium">
+                        {claudeWslModeConfig.actualMode === 'wsl' ? (
+                          <span className="flex items-center gap-1">
+                            <Terminal className="h-3 w-3" />
+                            WSL
+                            {claudeWslModeConfig.wslClaudeVersion && (
+                              <span className="text-muted-foreground ml-1">({claudeWslModeConfig.wslClaudeVersion})</span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1">
+                            <Monitor className="h-3 w-3" />
+                            Windows 原生
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Link to settings page */}
+              <div className="text-xs text-muted-foreground">
+                <p>更多 Claude Code 配置请前往设置页面。</p>
+              </div>
+            </>
           )}
         </div>
       }

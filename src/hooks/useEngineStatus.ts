@@ -29,10 +29,23 @@ export interface GeminiWslModeConfig {
   nativeAvailable: boolean;
 }
 
+export interface ClaudeWslModeConfig {
+  mode: 'auto' | 'native' | 'wsl';
+  wslDistro: string | null;
+  wslAvailable: boolean;
+  availableDistros: string[];
+  wslEnabled: boolean;
+  wslClaudePath: string | null;
+  wslClaudeVersion: string | null;
+  nativeAvailable: boolean;
+  actualMode: 'native' | 'wsl';
+}
+
 export interface EngineStatusInfo {
   claude: {
     installed: boolean;
     version?: string;
+    wslModeConfig?: ClaudeWslModeConfig;
   };
   codex: {
     available: boolean;
@@ -77,18 +90,21 @@ const loadEngineStatus = async (): Promise<EngineStatusInfo> => {
         geminiResult,
         codexModeResult,
         geminiWslModeResult,
+        claudeWslModeResult,
       ] = await Promise.allSettled([
         api.checkClaudeVersion(),
         api.checkCodexAvailability(),
         api.checkGeminiInstalled(),
         api.getCodexModeConfig?.() ?? Promise.resolve(null),
         api.getGeminiWslModeConfig?.() ?? Promise.resolve(null),
+        api.getClaudeWslModeConfig?.() ?? Promise.resolve(null),
       ]);
 
       const status: EngineStatusInfo = {
         claude: {
           installed: claudeResult.status === 'fulfilled' ? claudeResult.value.is_installed : false,
           version: claudeResult.status === 'fulfilled' ? claudeResult.value.version : undefined,
+          wslModeConfig: claudeWslModeResult.status === 'fulfilled' ? claudeWslModeResult.value : undefined,
         },
         codex: {
           available: codexResult.status === 'fulfilled' ? codexResult.value.available : false,
@@ -170,6 +186,7 @@ export const useEngineStatus = () => {
     // 便捷访问器
     claudeInstalled: status?.claude.installed ?? false,
     claudeVersion: status?.claude.version,
+    claudeWslModeConfig: status?.claude.wslModeConfig,
     codexAvailable: status?.codex.available ?? false,
     codexVersion: status?.codex.version,
     codexModeConfig: status?.codex.modeConfig,

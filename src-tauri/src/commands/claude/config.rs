@@ -8,6 +8,10 @@ use rusqlite;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_shell::ShellExt;
 
+use serde::Serialize;
+use tokio::sync::OnceCell;
+
+use super::super::wsl_utils;
 use super::paths::{get_claude_dir, get_codex_dir};
 use super::platform;
 use super::{ClaudeMdFile, ClaudeSettings, ClaudeVersionStatus};
@@ -976,4 +980,137 @@ pub async fn save_codex_system_prompt(content: String) -> Result<String, String>
 
     log::info!("Successfully saved AGENTS.md to {:?}", agents_md_path);
     Ok("Codex 系统提示词保存成功".to_string())
+}
+
+// ============================================================================
+// Claude WSL Mode Configuration
+// ============================================================================
+
+/// 全局 Claude WSL 模式配置缓存
+static CLAUDE_WSL_MODE_CONFIG_CACHE: OnceCell<ClaudeWslModeInfo> = OnceCell::const_new();
+
+/// Claude WSL mode information for frontend
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClaudeWslModeInfo {
+    /// Current mode: "auto", "native", or "wsl"
+    pub mode: String,
+    /// Configured WSL distro (if any)
+    pub wsl_distro: Option<String>,
+    /// Is WSL available on this system
+    pub wsl_available: bool,
+    /// Available WSL distros
+    pub available_distros: Vec<String>,
+    /// Is WSL mode currently active
+    pub wsl_enabled: bool,
+    /// Claude path in WSL (if detected)
+    pub wsl_claude_path: Option<String>,
+    /// Claude version in WSL (if detected)
+    pub wsl_claude_version: Option<String>,
+    /// Is native Claude available
+    pub native_available: bool,
+    /// Actual mode being used (detection result)
+    pub actual_mode: String,
+}
+
+/// Get Claude WSL mode configuration
+/// 使用全局缓存避免重复检测，减少 WSL 进程创建
+#[tauri::command]
+pub async fn get_claude_wsl_mode_config() -> Result<ClaudeWslModeInfo, String> {
+    // 使用缓存避免重复检测
+    let result = CLAUDE_WSL_MODE_CONFIG_CACHE
+        .get_or_init(|| async {
+            log::info!("[Claude] Getting WSL mode configuration (first time)...");
+            do_get_claude_wsl_mode_config()
+        })
+        .await;
+
+    log::debug!("[Claude] Returning cached WSL mode config: {:?}", result);
+    Ok(result.clone())
+}
+
+/// 实际执行 Claude WSL 模式配置获取（内部函数）
+fn do_get_claude_wsl_mode_config() -> ClaudeWslModeInfo {
+    let config = wsl_utils::get_claude_wsl_config();
+    let runtime = wsl_utils::get_claude_wsl_runtime();
+
+    let mode_str = match config.mode {
+        wsl_utils::ClaudeMode::Auto => "auto",
+        wsl_utils::ClaudeMode::Native => "native",
+        wsl_utils::ClaudeMode::Wsl => "wsl",
+    };
+
+    #[cfg(target_os = "windows")]
+    let (wsl_available, available_distros, native_available) = {
+        let wsl = wsl_utils::is_wsl_available();
+        let distros = wsl_utils::get_wsl_distros();
+        let native = wsl_utils::is_native_claude_available();
+        (wsl, distros, native)
+    };
+
+    #[cfg(not(target_os = "windows"))]
+    let (wsl_available, available_distros, native_available) = (false, vec![], true);
+
+    let wsl_claude_version = if runtime.enabled {
+        wsl_utils::get_wsl_claude_version(runtime.distro.as_deref())
+    } else {
+        None
+    };
+
+    let actual_mode = if runtime.enabled { "wsl" } else { "native" };
+
+    ClaudeWslModeInfo {
+        mode: mode_str.to_string(),
+        wsl_distro: config.wsl_distro.clone(),
+        wsl_available,
+        available_distros,
+        wsl_enabled: runtime.enabled,
+        wsl_claude_path: runtime.claude_path_in_wsl.clone(),
+        wsl_claude_version,
+        native_available,
+        actual_mode: actual_mode.to_string(),
+    }
+}
+
+/// Set Claude WSL mode configuration
+#[tauri::command]
+pub async fn set_claude_wsl_mode_config(
+    mode: String,
+    wsl_distro: Option<String>,
+) -> Result<String, String> {
+    log::info!(
+        "[Claude] Setting WSL mode configuration: mode={}, wsl_distro={:?}",
+        mode,
+        wsl_distro
+    );
+
+    let claude_mode = match mode.to_lowercase().as_str() {
+        "auto" => wsl_utils::ClaudeMode::Auto,
+        "native" => wsl_utils::ClaudeMode::Native,
+        "wsl" => wsl_utils::ClaudeMode::Wsl,
+        _ => {
+            return Err(format!(
+                "Invalid mode: {}. Use 'auto', 'native', or 'wsl'",
+                mode
+            ))
+        }
+    };
+
+    let config = wsl_utils::ClaudeWslConfig {
+        mode: claude_mode,
+        wsl_distro,
+    };
+
+    wsl_utils::save_claude_wsl_config(&config)?;
+
+    log::info!(
+        "[Claude WSL] Configuration saved: mode={}, distro={:?}",
+        mode,
+        config.wsl_distro
+    );
+
+    Ok(
+        "Configuration saved. Please restart the app for changes to take effect."
+            .to_string(),
+    )
 }
