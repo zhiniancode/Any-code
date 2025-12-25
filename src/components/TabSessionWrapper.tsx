@@ -148,11 +148,30 @@ export const TabSessionWrapper = React.memo(TabSessionWrapperComponent, (prevPro
     return false;
   })();
 
+  // 🔧 FIX: 当 initialProjectPath 从 undefined "升级"为有值时，也不应触发重新渲染
+  // 场景：用户通过 + 号创建新标签页 → 在 SessionHeader 选择项目路径 → 发送提示词
+  // 此时 updateTabSession 会更新 tab.projectPath，但组件内部已经知道路径了
+  const projectPathUnchanged = (() => {
+    const prevPath = prevProps.initialProjectPath;
+    const nextPath = nextProps.initialProjectPath;
+
+    if (prevPath === nextPath) return true;
+
+    // 🔧 CRITICAL: 如果 prevPath 是 undefined/空，nextPath 有值，这是 "projectPath 升级"
+    // 不应该触发重新渲染
+    if (!prevPath && nextPath) {
+      console.debug('[TabSessionWrapper] ProjectPath upgraded from', prevPath, 'to', nextPath, '- skipping re-render');
+      return true;
+    }
+
+    return false;
+  })();
+
   return (
     prevProps.tabId === nextProps.tabId &&
     prevProps.isActive === nextProps.isActive &&
     sessionIdUnchanged &&
-    prevProps.initialProjectPath === nextProps.initialProjectPath
+    projectPathUnchanged
     // onStreamingChange 等函数props通常是稳定的
   );
 });
