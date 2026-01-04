@@ -239,7 +239,7 @@ export const MCPWidget: React.FC<MCPWidgetProps> = ({
                   )}
                   style={shouldCollapseResult && !isResultExpanded ? { maxHeight: `${RESULT_COLLAPSE_HEIGHT}px` } : undefined}
                 >
-                  <pre className="text-xs font-mono whitespace-pre-wrap break-words text-foreground/80" style={{ fontSize: '0.8rem' }}>
+                  <pre className="text-xs font-mono whitespace-pre-wrap break-words text-foreground/80" style={{ fontSize: '0.8rem', overflowWrap: 'anywhere' }}>
                     {resultContent}
                   </pre>
                 </div>

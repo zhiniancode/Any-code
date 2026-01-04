@@ -135,7 +135,7 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
                 {resultContent && (
                   <ErrorBoundary
                     fallback={() => (
-                      <div className="text-sm text-foreground/80 whitespace-pre-wrap break-words font-mono bg-muted/20 p-3 rounded">
+                      <div className="text-sm text-foreground/80 whitespace-pre-wrap break-words font-mono bg-muted/20 p-3 rounded" style={{ overflowWrap: 'anywhere' }}>
                         {resultContent}
                       </div>
                     )}
