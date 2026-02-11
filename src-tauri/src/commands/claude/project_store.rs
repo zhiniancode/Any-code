@@ -44,11 +44,15 @@ impl ProjectStore {
                 .map(|entries| entries.filter_map(|e| e.ok()).filter(|e| e.path().is_dir()).count())
                 .unwrap_or(0);
 
-            // Safety check: if hidden_projects would hide ALL projects, clear the hidden list
-            // This prevents the "no projects found" issue caused by corrupted hidden_projects.json
-            if total_project_count > 0 && hidden_projects.len() >= total_project_count {
+            // Safety check: if hidden_projects is clearly invalid (e.g. contains duplicates or stale
+            // ids), it may exceed the number of projects on disk. In that case, clear it to prevent
+            // accidentally hiding everything due to a corrupted hidden_projects.json.
+            //
+            // Note: it's valid for a user to hide *all* projects. Therefore we only trigger this
+            // guard when hidden_projects.len() is strictly greater than the total project count.
+            if total_project_count > 0 && hidden_projects.len() > total_project_count {
                 log::warn!(
-                    "Safety check triggered: hidden_projects ({}) >= total projects ({}). Clearing hidden list to prevent all projects from being hidden.",
+                    "Safety check triggered: hidden_projects ({}) > total projects ({}). Clearing hidden list to prevent all projects from being hidden due to corruption.",
                     hidden_projects.len(),
                     total_project_count
                 );
