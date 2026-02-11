@@ -2,11 +2,14 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { ClaudeCodeSession } from './ClaudeCodeSession';
 import { useTabSession } from '@/hooks/useTabs';
 import type { Session } from '@/lib/api';
+import type { ModelType } from '@/components/FloatingPromptInput/types';
 
 interface TabSessionWrapperProps {
   tabId: string;
   session?: Session;
   initialProjectPath?: string;
+  initialPrompt?: string;
+  initialPromptModel?: ModelType;
   onStreamingChange?: (isStreaming: boolean, sessionId: string | null) => void;
   isActive: boolean;
 }
@@ -20,11 +23,13 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
   tabId,
   session,
   initialProjectPath,
+  initialPrompt,
+  initialPromptModel,
   onStreamingChange,
   isActive,
 }) => {
   // ✅ FIXED: Removed unused 'tab' variable to fix TS6133
-  const { updateStreaming, setCleanup, updateTitle, updateEngine, updateSession } = useTabSession(tabId);
+  const { updateStreaming, setCleanup, updateTitle, updateEngine, updateSession, clearInitialPrompt } = useTabSession(tabId);
   const sessionRef = useRef<{ hasChanges: boolean; sessionId: string | null }>({
     hasChanges: false,
     sessionId: null,
@@ -113,6 +118,9 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
       <ClaudeCodeSession
         session={session}
         initialProjectPath={initialProjectPath}
+        initialPrompt={initialPrompt}
+        initialPromptModel={initialPromptModel}
+        onInitialPromptConsumed={clearInitialPrompt}
         onStreamingChange={handleStreamingChange}
         onProjectPathChange={handleProjectPathChange}
         onEngineChange={handleEngineChange}

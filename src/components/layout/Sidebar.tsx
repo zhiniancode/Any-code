@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Home,
   FolderOpen,
   Settings,
   BarChart2,
@@ -72,6 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, [currentView]);
 
   const mainNavItems: NavItem[] = [
+    { view: 'home', icon: Home, label: t('sidebar.home') },
     { view: 'projects', icon: FolderOpen, label: t('common.ccProjectsTitle') },
     { view: 'claude-tab-manager', icon: Terminal, label: t('sidebar.sessionManagement') },
     { view: 'editor', icon: FileText, label: t('sidebar.claudePrompts') },

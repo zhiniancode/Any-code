@@ -1247,6 +1247,7 @@
     "projectDeleted": "项目 \"{{name}}\" 已删除成功"
   },
   "sidebar": {
+    "home": "首页",
     "about": "关于",
     "collapseSidebar": "收起侧边栏",
     "expandSidebar": "展开侧边栏",

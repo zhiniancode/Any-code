@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef, useContext, createContext, ReactNode, useEffect } from 'react';
 import type { Session } from '@/lib/api';
+import type { ModelType } from '@/components/FloatingPromptInput/types';
 import { createSessionWindow, emitWindowSyncEvent, onWindowSyncEvent, isSessionWindow } from '@/lib/windowManager';
 
 /**
- * ✨ REFACTORED: Simplified Tab interface (Phase 1 optimization)
+ * ??REFACTORED: Simplified Tab interface (Phase 1 optimization)
  * - Single interface (no dual TabSessionData/TabSession)
  * - Simplified state enum (merged streamingStatus into state)
  * - Flattened error structure
@@ -18,6 +19,10 @@ export interface Tab {
   projectPath?: string;
   session?: Session;
   engine?: 'claude' | 'codex' | 'gemini';
+
+  // One-time initial prompt (used by Home -> Session transition)
+  initialPrompt?: string;
+  initialPromptModel?: ModelType;
   
   // State management (simplified)
   state: 'idle' | 'streaming' | 'error';
@@ -36,21 +41,22 @@ export type TabSessionData = Tab;
 export type TabSession = Tab & { isActive: boolean };
 
 /**
- * ✨ REFACTORED: Context value interface (Phase 1 optimization)
+ * ??REFACTORED: Context value interface (Phase 1 optimization)
  * - Updated method signatures to use simplified Tab interface
  * - Simplified updateTabState (merged streaming/error updates)
  */
 interface TabContextValue {
   tabs: TabSession[];
   activeTabId: string | null;
-  createNewTab: (session?: Session, projectPath?: string, activate?: boolean) => string;
+  createNewTab: (session?: Session, projectPath?: string, activate?: boolean, initialPrompt?: string, initialPromptModel?: ModelType) => string;
   switchToTab: (tabId: string) => void;
   closeTab: (tabId: string, force?: boolean) => Promise<{ needsConfirmation?: boolean; tabId?: string } | void>;
   updateTabState: (tabId: string, state: Tab['state'], errorMessage?: string) => void;
   updateTabChanges: (tabId: string, hasChanges: boolean) => void;
   updateTabTitle: (tabId: string, title: string) => void;
   updateTabEngine: (tabId: string, engine: 'claude' | 'codex' | 'gemini') => void;
-  /** 🔧 FIX: 更新标签页的 session 信息（用于新建会话获取到 sessionId 后持久化） */
+  updateTabInitialPrompt: (tabId: string, initialPrompt?: string | null, initialPromptModel?: ModelType | null) => void;
+  /** 🔧 FIX: 更新标签页的 session 信息（用于新建会话获取到 sessionId 后持久化??*/
   updateTabSession: (tabId: string, sessionInfo: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' }) => void;
   getTabById: (tabId: string) => TabSession | undefined;
   getActiveTab: () => TabSession | undefined;
@@ -81,7 +87,7 @@ interface TabProviderProps {
 }
 
 /**
- * ✨ REFACTORED: TabProvider - Simplified state management (Phase 1)
+ * ??REFACTORED: TabProvider - Simplified state management (Phase 1)
  * - Removed Map cache (direct array operations)
  * - Single Tab[] state (no dual data structures)
  * - Cleaner persistence logic
@@ -96,7 +102,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
 
   const STORAGE_KEY = 'claude-workbench-tabs-state';
 
-  // ✨ REFACTORED: Load persisted state on mount (simplified)
+  // ??REFACTORED: Load persisted state on mount (simplified)
   useEffect(() => {
     try {
       const persistedState = localStorage.getItem(STORAGE_KEY);
@@ -133,16 +139,18 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // ✨ REFACTORED: Persist state when it changes (simplified)
+  // ??REFACTORED: Persist state when it changes (simplified)
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ tabs, activeTabId }));
+      // Do not persist one-time initial prompt (avoid re-sending after reload)
+      const tabsToPersist = tabs.map(({ initialPrompt, initialPromptModel, ...rest }) => rest);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ tabs: tabsToPersist, activeTabId }));
     } catch (error) {
       console.error('[useTabs] Failed to persist tabs:', error);
     }
   }, [tabs, activeTabId]);
 
-  // ✨ REFACTORED: Compute TabSession with isActive (simplified)
+  // ??REFACTORED: Compute TabSession with isActive (simplified)
   const tabsWithActive: TabSession[] = tabs.map(tab => ({
     ...tab,
     isActive: tab.id === activeTabId,
@@ -159,15 +167,15 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     const extractProjectName = (path: string): string => {
       if (!path) return '';
 
-      // 判断是 Windows 路径还是 Unix 路径
+      // 判断??Windows 路径还是 Unix 路径
       const isWindowsPath = path.includes('\\');
       const separator = isWindowsPath ? '\\' : '/';
 
-      // 分割路径并获取最后一个片段
+      // 分割路径并获取最后一个片??
       const segments = path.split(separator);
       const projectName = segments[segments.length - 1] || '';
 
-      // 格式化项目名：移除常见前缀，替换分隔符为空格
+      // 格式化项目名：移除常见前缀，替换分隔符为空??
       const formattedName = projectName
         .replace(/^(my-|test-|demo-)/, '')
         .replace(/[-_]/g, ' ')
@@ -179,19 +187,19 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
 
     if (session) {
       const projectName = extractProjectName(session.project_path);
-      return projectName || '未命名会话';
+      return projectName || 'Untitled Session';
     }
 
     if (projectPath) {
       const projectName = extractProjectName(projectPath);
-      return projectName || '新会话';
+      return projectName || 'New Session';
     }
 
-    return '新会话';
+    return 'New Session';
   }, []);
 
-  // ✨ REFACTORED: Create new tab (simplified)
-  const createNewTab = useCallback((session?: Session, projectPath?: string, activate: boolean = true): string => {
+  // ??REFACTORED: Create new tab (simplified)
+  const createNewTab = useCallback((session?: Session, projectPath?: string, activate: boolean = true, initialPrompt?: string, initialPromptModel?: ModelType): string => {
     const newTabId = generateTabId();
     const newTab: Tab = {
       id: newTabId,
@@ -200,6 +208,8 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
       projectPath: projectPath || session?.project_path,
       session,
       engine: session?.engine,
+      initialPrompt: initialPrompt || undefined,
+      initialPromptModel: initialPromptModel || undefined,
       state: 'idle',
       hasUnsavedChanges: false,
       createdAt: Date.now(),
@@ -215,7 +225,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     return newTabId;
   }, [generateTabId, generateTabTitle]);
 
-  // ✨ REFACTORED: Switch to tab (functional setState)
+  // ??REFACTORED: Switch to tab (functional setState)
   const switchToTab = useCallback((tabId: string) => {
     setTabs(prev =>
       prev.map(tab =>
@@ -236,7 +246,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     };
   }, [tabs]);
 
-  // ✨ REFACTORED: Force close tab (use cleanup callbacks ref)
+  // ??REFACTORED: Force close tab (use cleanup callbacks ref)
   const forceCloseTab = useCallback(async (tabId: string) => {
     // Execute cleanup callback if present
     const cleanup = cleanupCallbacksRef.current.get(tabId);
@@ -282,7 +292,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     return forceCloseTab(tabId);
   }, [canCloseTab, forceCloseTab]);
 
-  // ✨ NEW: Unified state update method
+  // ??NEW: Unified state update method
   const updateTabState = useCallback((tabId: string, state: Tab['state'], errorMessage?: string) => {
     setTabs(prev =>
       prev.map(tab =>
@@ -311,6 +321,19 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     );
   }, []);
 
+  const updateTabInitialPrompt = useCallback((tabId: string, initialPrompt?: string | null, initialPromptModel?: ModelType | null) => {
+    setTabs(prev =>
+      prev.map(tab =>
+        tab.id === tabId
+          ? {
+              ...tab,
+              initialPrompt: initialPrompt || undefined,
+              initialPromptModel: initialPromptModel || undefined,
+            }
+          : tab
+      )
+    );
+  }, []);
   // 🆕 Update tab engine - 更新标签页的执行引擎
   const updateTabEngine = useCallback((tabId: string, engine: 'claude' | 'codex' | 'gemini') => {
     setTabs(prev =>
@@ -332,10 +355,10 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
       prev.map(tab => {
         if (tab.id !== tabId) return tab;
 
-        // 如果已经有 session 且 id 相同，不需要更新
+        // 如果已经??session ??id 相同，不需要更??
         if (tab.session?.id === sessionInfo.sessionId) return tab;
 
-        // 构建完整的 Session 对象
+        // 构建完整??Session 对象
         const newSession: Session = {
           id: sessionInfo.sessionId,
           project_id: sessionInfo.projectId,
@@ -463,7 +486,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
             setTabs(prev => {
               const newTab: Tab = {
                 id: `tab-${Date.now()}-attached`,
-                title: projectPath.split(/[/\\]/).pop() || '新会话',
+                title: projectPath.split(/[/\\]/).pop() || 'New Session',
                 type: 'new',
                 projectPath,
                 state: 'idle',
@@ -547,8 +570,8 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     try {
       const newTabId = generateTabId();
       const title = session
-        ? (projectPath?.split(/[/\\]/).pop() || session.project_path?.split(/[/\\]/).pop() || '新会话')
-        : (projectPath?.split(/[/\\]/).pop() || '新会话');
+        ? (projectPath?.split(/[/\\]/).pop() || session.project_path?.split(/[/\\]/).pop() || 'New Session')
+        : (projectPath?.split(/[/\\]/).pop() || 'New Session');
 
       // Create the window directly without creating a tab first
       const windowLabel = await createSessionWindow({
@@ -576,7 +599,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     }
   }, [generateTabId]);
 
-  // ✨ REFACTORED: Backward compatibility aliases
+  // ??REFACTORED: Backward compatibility aliases
   const updateTabStreamingStatus = useCallback((tabId: string, isStreaming: boolean, _sessionId: string | null) => {
     updateTabState(tabId, isStreaming ? 'streaming' : 'idle');
   }, [updateTabState]);
@@ -595,6 +618,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     updateTabChanges,
     updateTabTitle,
     updateTabEngine,
+    updateTabInitialPrompt,
     updateTabSession,
     getTabById,
     getActiveTab,
@@ -622,7 +646,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
 };
 
 /**
- * useTabs - 使用标签页状态管理
+ * useTabs - 使用标签页状态管??
  */
 export const useTabs = (): TabContextValue => {
   const context = useContext(TabContext);
@@ -633,7 +657,7 @@ export const useTabs = (): TabContextValue => {
 };
 
 /**
- * useActiveTab - 获取当前活跃标签页
+ * useActiveTab - 获取当前活跃标签??
  */
 export const useActiveTab = (): TabSession | undefined => {
   const { getActiveTab } = useTabs();
@@ -644,7 +668,7 @@ export const useActiveTab = (): TabSession | undefined => {
  * useTabSession - 获取特定标签页的会话管理钩子
  */
 export const useTabSession = (tabId: string) => {
-  const { getTabById, updateTabChanges, updateTabStreamingStatus, updateTabTitle, updateTabEngine, updateTabSession, registerTabCleanup } = useTabs();
+  const { getTabById, updateTabChanges, updateTabStreamingStatus, updateTabTitle, updateTabEngine, updateTabInitialPrompt, updateTabSession, registerTabCleanup } = useTabs();
 
   const tab = getTabById(tabId);
 
@@ -669,10 +693,14 @@ export const useTabSession = (tabId: string) => {
     updateTabEngine(tabId, engine);
   }, [tabId, updateTabEngine]);
 
-  // 🔧 FIX: Update session - 更新会话信息（用于新建会话持久化）
+  // 🔧 FIX: Update session - 更新会话信息（用于新建会话持久化??
   const updateSession = useCallback((sessionInfo: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' }) => {
     updateTabSession(tabId, sessionInfo);
   }, [tabId, updateTabSession]);
+
+  const clearInitialPrompt = useCallback(() => {
+    updateTabInitialPrompt(tabId, null, null);
+  }, [tabId, updateTabInitialPrompt]);
 
   // 🔧 NEW: Register cleanup callback
   const setCleanup = useCallback((cleanup: () => Promise<void> | void) => {
@@ -687,6 +715,7 @@ export const useTabSession = (tabId: string) => {
     updateStreaming,
     updateEngine,
     updateSession,
+    clearInitialPrompt,
     setCleanup,
   };
 };

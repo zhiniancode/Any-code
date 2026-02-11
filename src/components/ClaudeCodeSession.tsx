@@ -53,6 +53,18 @@ interface ClaudeCodeSessionProps {
    */
   initialProjectPath?: string;
   /**
+   * One-time initial prompt (Home -> Session). If provided, will auto-send once.
+   */
+  initialPrompt?: string;
+  /**
+   * Initial prompt model (Claude engine only; others ignored)
+   */
+  initialPromptModel?: ModelType;
+  /**
+   * Called after the one-time initial prompt is consumed (used to clear tab state)
+   */
+  onInitialPromptConsumed?: () => void;
+  /**
    * Optional className for styling
    */
   className?: string;
@@ -88,6 +100,9 @@ interface ClaudeCodeSessionProps {
 const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   session,
   initialProjectPath = "",
+  initialPrompt,
+  initialPromptModel,
+  onInitialPromptConsumed,
   className,
   onStreamingChange,
   onProjectPathChange,
@@ -445,6 +460,31 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
     handleSendPrompt(prompt, model, maxThinkingTokens);
   }, [handleSendPrompt, setUserScrolled, setShouldAutoScroll]);
+
+  const hasAutoSentInitialPromptRef = useRef(false);
+  useEffect(() => {
+    if (hasAutoSentInitialPromptRef.current) return;
+    if (session) return; // only for new sessions
+    if (!initialPrompt || !initialPrompt.trim()) return;
+    if (!projectPath) return;
+    if (isLoading) return;
+    if (messages.length > 0) return;
+
+    hasAutoSentInitialPromptRef.current = true;
+    onInitialPromptConsumed?.();
+
+    const modelToUse: ModelType = initialPromptModel || 'sonnet';
+    handleSendPromptWithScroll(initialPrompt.trim(), modelToUse);
+  }, [
+    session,
+    initialPrompt,
+    initialPromptModel,
+    projectPath,
+    isLoading,
+    messages.length,
+    handleSendPromptWithScroll,
+    onInitialPromptConsumed,
+  ]);
 
   // 🆕 方案 B-1: 设置发送提示词回调，用于计划批准后自动执行
   useEffect(() => {

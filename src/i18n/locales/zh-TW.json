@@ -1239,6 +1239,7 @@
     "projectDeleted": "專案 \"{{name}}\" 已刪除成功"
   },
   "sidebar": {
+    "home": "首頁",
     "about": "關於",
     "collapseSidebar": "收起側邊欄",
     "expandSidebar": "展開側邊欄",

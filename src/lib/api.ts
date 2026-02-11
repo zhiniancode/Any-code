@@ -689,6 +689,37 @@ export const api = {
   },
 
   /**
+   * Lists all Claude sessions across all projects.
+   * This is a convenience helper for UI pages that need a global session list.
+   */
+  async listAllClaudeSessions(): Promise<Session[]> {
+    try {
+      const projects = await this.listProjects();
+      const perProject = await Promise.all(
+        projects.map(async (p) => {
+          try {
+            const sessions = await invoke<Session[]>("get_project_sessions", { projectId: p.id });
+            return sessions.map((s) => ({
+              ...s,
+              project_id: p.id,
+              project_path: p.path,
+              engine: "claude" as const,
+            }));
+          } catch (error) {
+            console.warn("[api] Failed to load sessions for project:", p.id, error);
+            return [] as Session[];
+          }
+        })
+      );
+      // Flatten
+      return perProject.flat();
+    } catch (error) {
+      console.error("Failed to list all Claude sessions:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Retrieves sessions for a specific project (both Claude and Codex)
    * @param projectId - The ID of the project to retrieve sessions for
    * @param projectPath - Optional project path to filter Codex sessions (if not provided, tries to infer from Claude sessions)

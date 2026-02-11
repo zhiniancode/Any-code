@@ -31,6 +31,7 @@ import { useTabs } from '@/hooks/useTabs';
 import { useSessionSync } from '@/hooks/useSessionSync'; // 🔧 NEW: 会话状态同步
 import { selectProjectPath } from '@/lib/sessionHelpers';
 import type { Session } from '@/lib/api';
+import type { ModelType } from '@/components/FloatingPromptInput/types';
 
 interface TabManagerProps {
   onBack: () => void;
@@ -43,6 +44,14 @@ interface TabManagerProps {
    * 初始项目路径 - 创建新会话时使用
    */
   initialProjectPath?: string;
+  /**
+   * One-time initial prompt (Home -> Session)
+   */
+  initialPrompt?: string;
+  /**
+   * Initial prompt model (Claude engine only; others ignored)
+   */
+  initialPromptModel?: ModelType;
 }
 
 /**
@@ -54,6 +63,8 @@ export const TabManager: React.FC<TabManagerProps> = ({
   className,
   initialSession,
   initialProjectPath,
+  initialPrompt,
+  initialPromptModel,
 }) => {
   const { t } = useTranslation();
   const {
@@ -205,11 +216,14 @@ export const TabManager: React.FC<TabManagerProps> = ({
         // 只匹配没有 session（新建会话）或 session.project_path 相同的标签页
         return tabPath && normalizePath(tabPath) === normalizedInitPath;
       });
-      if (existingTab) {
+      // If Home provides an initial prompt, always create a new session tab
+      // (avoid accidentally sending the prompt into an existing tab).
+      const hasInitialPrompt = Boolean(initialPrompt && initialPrompt.trim());
+      if (existingTab && !hasInitialPrompt) {
         switchToTab(existingTab.id);
         return;
       }
-      createNewTab(undefined, initialProjectPath);
+      createNewTab(undefined, initialProjectPath, true, initialPrompt, initialPromptModel);
       return;
     }
 
@@ -470,6 +484,8 @@ export const TabManager: React.FC<TabManagerProps> = ({
                   tabId={tab.id}
                   session={tab.session}
                   initialProjectPath={tab.projectPath}
+                  initialPrompt={tab.initialPrompt}
+                  initialPromptModel={tab.initialPromptModel}
                   isActive={tab.isActive}
                   onStreamingChange={(isStreaming, sessionId) =>
                     updateTabStreamingStatus(tab.id, isStreaming, sessionId)

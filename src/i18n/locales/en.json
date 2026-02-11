@@ -1215,6 +1215,7 @@
     "projectDeleted": "Project \"{{name}}\" deleted successfully"
   },
   "sidebar": {
+    "home": "Home",
     "about": "About",
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",

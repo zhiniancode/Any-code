@@ -65,6 +65,27 @@ export async function selectProjectPath(): Promise<string | null> {
   }
 }
 
+/**
+ * Opens a file dialog to select one or more files.
+ * @returns Selected file paths or null if cancelled
+ */
+export async function selectImportFiles(): Promise<string[] | null> {
+  try {
+    const selected = await open({
+      directory: false,
+      multiple: true,
+      title: "????"
+    });
+
+    if (!selected) return null;
+    if (Array.isArray(selected)) return selected as string[];
+    return [selected as string];
+  } catch (err) {
+    console.error("Failed to select files:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error("Failed to select files: " + msg);
+  }
+}
 // ============================================================================
 // Output Copying Functions
 // ============================================================================

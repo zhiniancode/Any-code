@@ -15,6 +15,7 @@ import { ClaudeFileEditor } from "@/components/ClaudeFileEditor";
 import { Settings } from "@/components/Settings";
 import { ClaudeCodeSession } from "@/components/ClaudeCodeSession";
 import { TabManager } from "@/components/TabManager";
+import { HomeGuid } from "@/components/home/HomeGuid";
 import { UsageDashboard } from "@/components/UsageDashboard";
 import { MCPManager } from "@/components/MCPManager";
 import { ClaudeBinaryDialog } from "@/components/dialogs/ClaudeBinaryDialog";
@@ -301,6 +302,9 @@ export const ViewRouter: React.FC = () => {
           </div>
         );
 
+      case "home":
+        return <HomeGuid />;
+
       case "projects":
         return (
           <div className="flex-1 overflow-y-auto">
@@ -447,6 +451,8 @@ export const ViewRouter: React.FC = () => {
           <TabManager
             initialSession={viewParams.initialSession}
             initialProjectPath={viewParams.initialProjectPath}
+            initialPrompt={viewParams.initialPrompt}
+            initialPromptModel={viewParams.initialPromptModel}
             onBack={() => navigateTo("projects")}
           />
         );
