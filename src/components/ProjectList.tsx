@@ -11,6 +11,7 @@ import {
   List
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/lib/api";
 import type { CodexSession } from "@/types/codex";
 import type { GeminiSessionInfo } from "@/types/gemini";
@@ -117,10 +118,13 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] = useState(false);
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState("active");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [codexSessions, setCodexSessions] = useState<CodexSession[]>([]);
   const [geminiSessionsMap, setGeminiSessionsMap] = useState<Map<string, GeminiSessionInfo[]>>(new Map());
+  const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
   
   // Calculate pagination
   const totalPages = Math.ceil(projects.length / ITEMS_PER_PAGE);
@@ -195,6 +199,73 @@ export const ProjectList: React.FC<ProjectListProps> = ({
     setProjectToDelete(null);
   };
 
+  // Keep selection in sync with the actual project list
+  React.useEffect(() => {
+    setSelectedProjectIds(prev => {
+      if (prev.size === 0) return prev;
+      const existingIds = new Set(projects.map(p => p.id));
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (existingIds.has(id)) next.add(id);
+      }
+      return next.size === prev.size ? prev : next;
+    });
+  }, [projects]);
+
+  const toggleProjectSelection = (projectId: string, nextChecked: boolean) => {
+    setSelectedProjectIds(prev => {
+      const next = new Set(prev);
+      if (nextChecked) next.add(projectId);
+      else next.delete(projectId);
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelectedProjectIds(new Set());
+
+  const selectAllOnPage = (checked: boolean) => {
+    setSelectedProjectIds(prev => {
+      const next = new Set(prev);
+      for (const p of currentProjects) {
+        if (checked) next.add(p.id);
+        else next.delete(p.id);
+      }
+      return next;
+    });
+  };
+
+  const selectedCount = selectedProjectIds.size;
+  const pageProjectIds = currentProjects.map(p => p.id);
+  const allOnPageSelected = pageProjectIds.length > 0 && pageProjectIds.every(id => selectedProjectIds.has(id));
+  const someOnPageSelected = pageProjectIds.some(id => selectedProjectIds.has(id));
+
+  const confirmBatchDelete = async () => {
+    if (!onProjectDelete) return;
+
+    const toDelete = projects.filter(p => selectedProjectIds.has(p.id));
+    if (toDelete.length === 0) {
+      setBatchDeleteDialogOpen(false);
+      return;
+    }
+
+    setIsBatchDeleting(true);
+    try {
+      for (const p of toDelete) {
+        await onProjectDelete(p);
+      }
+      clearSelection();
+      setBatchDeleteDialogOpen(false);
+
+      if (onProjectsChanged) {
+        onProjectsChanged();
+      }
+    } catch (error) {
+      console.error("Failed to batch delete projects:", error);
+    } finally {
+      setIsBatchDeleting(false);
+    }
+  };
+
   // Helper function to normalize path for comparison
   const normalizePath = (p: string) => p ? p.replace(/\\/g, '/').replace(/\/$/, '').toLowerCase() : '';
 
@@ -241,8 +312,45 @@ export const ProjectList: React.FC<ProjectListProps> = ({
 
     return (
     <div className="space-y-4">
-      <div className="flex justify-end mb-2">
-        <div className="flex items-center bg-muted/50 rounded-lg p-1">
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              checked={allOnPageSelected ? true : (someOnPageSelected ? "indeterminate" : false)}
+              onCheckedChange={(v) => selectAllOnPage(Boolean(v))}
+              aria-label={t('projectList.selectAllOnPageAria')}
+            />
+            <span className="text-sm text-muted-foreground">
+              {t('projectList.selectAllOnPage')}
+            </span>
+          </div>
+
+          {selectedCount > 0 && (
+            <>
+              <span className="text-sm text-muted-foreground truncate">
+                {t('projectList.selectedCount', { count: selectedCount })}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearSelection}
+              >
+                {t('projectList.clearSelection')}
+              </Button>
+              {onProjectDelete && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setBatchDeleteDialogOpen(true)}
+                >
+                  {t('projectList.deleteSelected')}
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className="flex items-center bg-muted/50 rounded-lg p-1 shrink-0">
           <Button
             variant={viewMode === "grid" ? "secondary" : "ghost"}
             size="icon-sm"
@@ -278,6 +386,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
           const projectName = getProjectName(project.path);
           const sessionBreakdown = getSessionBreakdown(project);
           const sessionCount = sessionBreakdown.total;
+          const isSelected = selectedProjectIds.has(project.id);
 
           return (
             <div
@@ -302,6 +411,16 @@ export const ProjectList: React.FC<ProjectListProps> = ({
             >
               {/* 主要信息区：项目图标 + 项目名称 */}
               <div className={cn("flex items-start gap-4", viewMode === "grid" ? "mb-3" : "flex-1 items-center mb-0")}>
+                <div
+                  className={cn("shrink-0", viewMode === "grid" ? "pt-1" : "")}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={(v) => toggleProjectSelection(project.id, Boolean(v))}
+                    aria-label={t('projectList.selectProjectAria', { projectName })}
+                  />
+                </div>
                 <div className={cn(
                   "flex items-center justify-center rounded-xl transition-colors duration-300",
                   "bg-gradient-to-br from-primary/10 to-primary/5 text-primary group-hover:from-primary/20 group-hover:to-primary/10",
@@ -393,10 +512,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
 
                 {/* 操作菜单 */}
                 {(onProjectSettings || onProjectDelete) && (
-                  <div className={cn(
-                    "transition-all duration-200",
-                    viewMode === "grid" ? "opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-focus-within:opacity-100 group-focus-within:translate-x-0" : "opacity-100"
-                  )}>
+                  <div className="transition-all duration-200 opacity-100 translate-x-0">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                         <Button
@@ -502,6 +618,34 @@ export const ProjectList: React.FC<ProjectListProps> = ({
               disabled={isDeleting}
             >
               {isDeleting ? t('projectList.deleting') : t('projectList.confirmDelete')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Batch Delete Confirmation Dialog */}
+      <Dialog open={batchDeleteDialogOpen} onOpenChange={setBatchDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('projectList.confirmBatchDeleteTitle')}</DialogTitle>
+            <DialogDescription>
+              {t('projectList.confirmBatchDeleteDescription', { count: selectedCount })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setBatchDeleteDialogOpen(false)}
+              disabled={isBatchDeleting}
+            >
+              {t('projectList.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmBatchDelete}
+              disabled={isBatchDeleting}
+            >
+              {isBatchDeleting ? t('projectList.deleting') : t('projectList.deleteSelected')}
             </Button>
           </DialogFooter>
         </DialogContent>
