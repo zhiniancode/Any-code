@@ -18,6 +18,7 @@ interface InputAreaProps {
   prompt: string;
   disabled?: boolean;
   dragActive: boolean;
+  variant?: "bar" | "card";
   showFilePicker: boolean;
   projectPath?: string;
   filePickerQuery: string;
@@ -62,6 +63,7 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
   prompt,
   disabled,
   dragActive,
+  variant = "bar",
   showFilePicker,
   projectPath,
   filePickerQuery,
@@ -103,6 +105,20 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
     return dragActive ? t('promptInput.placeholderDragActive') : t('promptInput.placeholder');
   };
 
+  const textareaSurface =
+    variant === "card"
+      ? cn(
+          "bg-background/35 backdrop-blur-md border-border/25 shadow-none",
+          "transition-colors transition-shadow duration-200",
+          "focus-visible:outline-none focus-visible:ring-0 focus-visible:border-border/40 focus-visible:shadow-md"
+        )
+      : cn(
+          "bg-background/40 backdrop-blur-sm border-border/35 shadow-sm",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/15 focus-visible:ring-offset-0 focus-visible:border-primary/35"
+        );
+
+  const canExpand = variant !== "card";
+
   return (
     <div className="relative">
       {/* 🆕 建议叠加层 */}
@@ -125,10 +141,13 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
         placeholder={getPlaceholder()}
         disabled={disabled}
         className={cn(
-          "min-h-[56px] max-h-[300px] resize-none pr-10 overflow-y-auto",
-          "bg-background/40 backdrop-blur-sm border-border/35 shadow-sm",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/15 focus-visible:ring-offset-0 focus-visible:border-primary/35",
-          dragActive && "border-primary ring-2 ring-primary/20",
+          "resize-none overflow-y-auto",
+          variant === "card"
+            ? "min-h-[96px] max-h-[360px] pr-4"
+            : "min-h-[56px] max-h-[300px] pr-10",
+          textareaSurface,
+          dragActive &&
+            (variant === "card" ? "border-primary/35 shadow-md" : "border-primary ring-2 ring-primary/20"),
           // 🆕 建议存在时文字颜色正常，让叠加层可见
           suggestion && "caret-primary"
         )}
@@ -140,16 +159,18 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
         onDrop={onDrop}
       />
 
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onExpand}
-        disabled={disabled}
-        className="absolute right-1 bottom-1 h-8 w-8 text-muted-foreground hover:text-foreground"
-        aria-label={t('promptInput.expandInput')}
-      >
-        <Maximize2 className="h-4 w-4" aria-hidden="true" />
-      </Button>
+      {canExpand && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onExpand}
+          disabled={disabled}
+          className="absolute right-1 bottom-1 h-8 w-8 text-muted-foreground hover:text-foreground"
+          aria-label={t('promptInput.expandInput')}
+        >
+          <Maximize2 className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      )}
 
       {/* File Picker */}
       <AnimatePresence>

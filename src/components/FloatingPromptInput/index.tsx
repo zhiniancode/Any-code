@@ -39,6 +39,7 @@ const FloatingPromptInputInner = (
     sessionId,
     projectId,
     className,
+    variant = "bar",
     onCancel,
     getConversationContext,
     messages,
@@ -54,6 +55,8 @@ const FloatingPromptInputInner = (
   }: FloatingPromptInputProps,
   ref: React.Ref<FloatingPromptInputRef>,
 ) => {
+  const isCardVariant = variant === "card";
+
   // Helper function to convert backend model string to frontend ModelType
   const parseSessionModel = (modelStr?: string): ModelType | null => {
     if (!modelStr) return null;
@@ -593,7 +596,10 @@ const FloatingPromptInputInner = (
 
       {/* ✅ 重构布局: 输入区域不再使用 fixed 定位，作为 Flex 容器的一部分 */}
       <div className={cn(
-        "flex-shrink-0 border-t border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] shadow-[var(--glass-shadow)]",
+        "flex-shrink-0",
+        isCardVariant
+          ? "rounded-2xl border border-border/35 bg-background/55 backdrop-blur-md shadow-[0_12px_40px_-28px_rgba(0,0,0,0.35)]"
+          : "border-t border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] shadow-[var(--glass-shadow)]",
         className
       )}>
         <AttachmentPreview
@@ -601,15 +607,16 @@ const FloatingPromptInputInner = (
           embeddedImages={embeddedImages}
           onRemoveAttachment={handleRemoveImageAttachment}
           onRemoveEmbedded={handleRemoveEmbeddedImage}
-          className="border-b border-border/50 p-4"
+          className={isCardVariant ? "border-b border-border/15 p-4 pb-3" : "border-b border-border/50 p-4"}
         />
 
-        <div className="p-4 space-y-2">
+        <div className={isCardVariant ? "p-4 pt-3 space-y-2" : "p-4 space-y-2"}>
           <InputArea
             ref={textareaRef}
             prompt={state.prompt}
             disabled={disabled}
             dragActive={dragActive}
+            variant={variant}
             showFilePicker={showFilePicker}
             projectPath={projectPath}
             filePickerQuery={filePickerQuery}

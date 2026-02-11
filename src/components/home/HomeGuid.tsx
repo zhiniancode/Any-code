@@ -55,25 +55,9 @@ export const HomeGuid: React.FC = () => {
   const effectiveCwd = workingDirectory || fallbackCwd;
 
   const projectDisplayName = useMemo(() => {
-    if (!effectiveCwd) return "选择项目 / 导入";
+    if (!importSelection) return "导入文件/文件夹（可选）";
     return basenameFromPath(effectiveCwd);
-  }, [effectiveCwd]);
-
-  const importHint = useMemo(() => {
-    if (!importSelection) return null;
-    if (importSelection.kind === "folder") {
-      return {
-        title: "已选择文件夹",
-        detail: importSelection.path,
-      };
-    }
-    const count = importSelection.paths.length;
-    const dir = dirnameFromPath(importSelection.paths[0] || "");
-    return {
-      title: `已选择 ${count} 个文件`,
-      detail: dir ? `工作目录：${dir}` : "",
-    };
-  }, [importSelection]);
+  }, [effectiveCwd, importSelection]);
 
   useEffect(() => {
     let alive = true;
@@ -168,14 +152,18 @@ export const HomeGuid: React.FC = () => {
               </div>
               <h1 className="text-3xl font-semibold tracking-tight">开始编码吧</h1>
 
-              <div className="mt-2 flex items-center justify-center gap-2">
+              <p className="mt-2 text-sm text-muted-foreground">
+                先选模型，直接开始对话（可选导入文件/文件夹）
+              </p>
+
+              <div className="mt-6 flex items-center justify-center gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       className="h-9 gap-2 rounded-md px-2 text-muted-foreground hover:text-foreground"
                     >
-                      <span className={cn("max-w-[300px] truncate", !effectiveCwd && "text-muted-foreground/70")}>
+                      <span className={cn("max-w-[340px] truncate", !importSelection && "text-muted-foreground/70")}>
                         {projectDisplayName}
                       </span>
                       <ChevronDown className="h-4 w-4 opacity-70" />
@@ -221,19 +209,6 @@ export const HomeGuid: React.FC = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-
-              {importHint && (
-                <div className="mt-2 text-xs text-muted-foreground">
-                  <div>{importHint.title}</div>
-                  {importHint.detail && <div className="mt-0.5">{importHint.detail}</div>}
-                </div>
-              )}
-
-              {effectiveCwd && (
-                <div className="mt-2 text-xs text-muted-foreground/80 truncate max-w-[520px]">
-                  cwd: <span className="font-mono">{effectiveCwd}</span>
-                </div>
-              )}
             </motion.div>
 
             <motion.div
@@ -246,6 +221,7 @@ export const HomeGuid: React.FC = () => {
                 isLoading={false}
                 disabled={!effectiveCwd}
                 projectPath={effectiveCwd}
+                variant="card"
                 onSend={handleSendFromHome}
               />
             </motion.div>

@@ -89,6 +89,12 @@ export interface FloatingPromptInputProps {
    */
   className?: string;
   /**
+   * Visual style variant for the input surface
+   * - bar: default (used inside session layout)
+   * - card: standalone card (used on Home screen)
+   */
+  variant?: "bar" | "card";
+  /**
    * Callback when cancel is clicked (only during loading)
    */
   onCancel?: () => void;
