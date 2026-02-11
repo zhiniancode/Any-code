@@ -248,12 +248,6 @@ export const HomeGuid: React.FC = () => {
                 projectPath={effectiveCwd}
                 onSend={handleSendFromHome}
               />
-
-              <div className="mt-3 flex justify-center">
-                <Button variant="ghost" className="text-xs" onClick={() => navigateTo("projects")}>
-                  打开历史会话 / 项目列表
-                </Button>
-              </div>
             </motion.div>
           </div>
         </div>

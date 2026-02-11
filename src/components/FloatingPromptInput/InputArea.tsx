@@ -126,7 +126,8 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
         disabled={disabled}
         className={cn(
           "min-h-[56px] max-h-[300px] resize-none pr-10 overflow-y-auto",
-          "bg-background/50 backdrop-blur-sm border-border/50 focus:border-primary/50 focus:ring-primary/20",
+          "bg-background/40 backdrop-blur-sm border-border/35 shadow-sm",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/15 focus-visible:ring-offset-0 focus-visible:border-primary/35",
           dragActive && "border-primary ring-2 ring-primary/20",
           // 🆕 建议存在时文字颜色正常，让叠加层可见
           suggestion && "caret-primary"
