@@ -14,4 +14,5 @@ if (Test-Path .env.local) {
 
 # 执行构建
 Write-Host "`nBuilding Tauri application..."
-bun run tauri build $args
+# Use npm to avoid requiring bun on contributor machines.
+npx tauri build @args
