@@ -1220,6 +1220,7 @@
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
     "sessionManagement": "Session Management",
+    "prompts": "Prompts",
     "claudePrompts": "Claude Prompts",
     "codexPrompts": "Codex Prompts",
     "geminiPrompts": "Gemini Prompts",

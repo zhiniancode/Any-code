@@ -1252,6 +1252,7 @@
     "collapseSidebar": "收起侧边栏",
     "expandSidebar": "展开侧边栏",
     "sessionManagement": "会话管理",
+    "prompts": "提示词",
     "claudePrompts": "Claude 提示词",
     "codexPrompts": "Codex 提示词",
     "geminiPrompts": "Gemini 提示词",

@@ -1244,6 +1244,7 @@
     "collapseSidebar": "收起側邊欄",
     "expandSidebar": "展開側邊欄",
     "sessionManagement": "對話管理",
+    "prompts": "提示詞",
     "claudePrompts": "Claude 提示詞",
     "codexPrompts": "Codex 提示詞",
     "geminiPrompts": "Gemini 提示詞",
