@@ -8,11 +8,10 @@ import {
   Layers,
   FileText,
   Package,
-  FileCode,
   ChevronLeft,
   ChevronRight,
   HelpCircle,
-  Sparkles
+  ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { View } from '@/types/navigation';
@@ -24,6 +23,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { UnifiedEngineStatus } from '@/components/UnifiedEngineStatus';
 import { UpdateBadge } from '@/components/common/UpdateBadge';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -76,9 +81,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { view: 'home', icon: Home, label: t('sidebar.home') },
     { view: 'projects', icon: FolderOpen, label: t('common.ccProjectsTitle') },
     { view: 'claude-tab-manager', icon: Terminal, label: t('sidebar.sessionManagement') },
-    { view: 'editor', icon: FileText, label: t('sidebar.claudePrompts') },
-    { view: 'codex-editor', icon: FileCode, label: t('sidebar.codexPrompts') },
-    { view: 'gemini-editor', icon: Sparkles, label: t('sidebar.geminiPrompts') },
     { view: 'usage-dashboard', icon: BarChart2, label: t('sidebar.usageStats') },
     { view: 'mcp', icon: Layers, label: t('sidebar.mcpTools') },
     { view: 'claude-extensions', icon: Package, label: t('sidebar.extensions') },
@@ -133,6 +135,72 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return buttonContent;
   };
 
+  // 提示词下拉菜单按钮
+  const PromptsDropdownButton = () => {
+    const promptViews: View[] = ['editor', 'codex-editor', 'gemini-editor'];
+    const isActive = promptViews.includes(currentView);
+
+    const buttonContent = (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant={isActive ? "secondary" : "ghost"}
+            className={cn(
+              "rounded-xl mb-2 transition-all duration-200",
+              isExpanded ? "w-full justify-start px-3 h-10" : "w-10 h-10",
+              isActive
+                ? "bg-primary/15 text-primary hover:bg-primary/20 shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
+          >
+            <FileText className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+            {isExpanded && (
+              <>
+                <span className="ml-3 text-sm font-medium flex-1 text-left">
+                  {t('sidebar.prompts')}
+                </span>
+                <ChevronDown className="w-4 h-4 opacity-50" />
+              </>
+            )}
+            {!isExpanded && <span className="sr-only">{t('sidebar.prompts')}</span>}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align={isExpanded ? "start" : "end"} side={isExpanded ? "bottom" : "right"} className="w-48">
+          <DropdownMenuItem onClick={() => onNavigate('editor')}>
+            <FileText className="w-4 h-4 mr-2" />
+            {t('sidebar.claudePrompts')}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onNavigate('codex-editor')}>
+            <FileText className="w-4 h-4 mr-2" />
+            {t('sidebar.codexPrompts')}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onNavigate('gemini-editor')}>
+            <FileText className="w-4 h-4 mr-2" />
+            {t('sidebar.geminiPrompts')}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+
+    // 收起模式显示 Tooltip
+    if (!isExpanded) {
+      return (
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>{buttonContent}</div>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="flex items-center gap-2 px-3 py-1.5">
+              <span className="font-medium">{t('sidebar.prompts')}</span>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    return buttonContent;
+  };
+
   return (
     <div
       className={cn(
@@ -150,6 +218,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {mainNavItems.map((item) => (
           <NavButton key={item.view} item={item} />
         ))}
+        <PromptsDropdownButton />
       </div>
 
       {/* 底部状态区域 */}
