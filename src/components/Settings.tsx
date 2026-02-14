@@ -35,6 +35,7 @@ import { GeneralSettings } from "./settings/GeneralSettings";
 import { PermissionsSettings } from "./settings/PermissionsSettings";
 import { EnvironmentSettings } from "./settings/EnvironmentSettings";
 import { HooksSettings } from "./settings/HooksSettings";
+import { EngineSettings } from "./settings/EngineSettings";
 
 interface SettingsProps {
   /**
@@ -435,10 +436,11 @@ export const Settings: React.FC<SettingsProps> = ({
       ) : (
         <div className="flex-1 overflow-y-auto p-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-8 w-full">
+            <TabsList className="grid grid-cols-9 w-full">
               <TabsTrigger value="general">{t('settings.general')}</TabsTrigger>
               <TabsTrigger value="permissions">{t('settings.permissions')}</TabsTrigger>
               <TabsTrigger value="environment">{t('settings.environment')}</TabsTrigger>
+              <TabsTrigger value="engines">引擎配置</TabsTrigger>
               <TabsTrigger value="hooks">{t('settings.hooks')}</TabsTrigger>
               <TabsTrigger value="translation">{t('settings.translation')}</TabsTrigger>
               <TabsTrigger value="prompt-api">{t('settings.promptApi')}</TabsTrigger>
@@ -477,7 +479,12 @@ export const Settings: React.FC<SettingsProps> = ({
                 removeEnvVar={removeEnvVar}
               />
             </TabsContent>
-            
+
+            {/* Engine Configuration */}
+            <TabsContent value="engines" className="space-y-6">
+              <EngineSettings />
+            </TabsContent>
+
             {/* Hooks Settings */}
             <TabsContent value="hooks" className="space-y-6">
               <HooksSettings
